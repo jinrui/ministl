@@ -9,28 +9,26 @@
 #include "../alloc.h"
 #include "../allocator.h"
 #include <assert.h>
-namespace MiniStl{
-	namespace Test{
-		void TestAllocator::testCase1(){
+namespace MiniStl {
+	namespace Test {
+		void TestAllocator::testCase1() {
 			std::vector<int, alloc> myvec;
 			assert(myvec.size() == 8);
 		}
 
-		void TestAllocator::testCase2(){
-					std::vector<int, alloc> myvec;
-					assert(myvec.size() == 8);
-				}
-		void TestAllocator::testCase3(){
-					std::vector<int, alloc> myvec;
-					assert(myvec.size() == 8);
-				}
-		void TestAllocator::testAll(){
-					testCase1();
-					testCase2();
-					testCase3();
-				}
+		void TestAllocator::testCase2() {
+			std::vector<int, alloc> myvec;
+			assert(myvec.size() == 8);
+		}
+		void TestAllocator::testCase3() {
+			std::vector<int, alloc> myvec;
+			assert(myvec.size() == 8);
+		}
+		void TestAllocator::testAll() {
+			testCase1();
+			testCase2();
+			testCase3();
+		}
 	}
 }
-
-
 
