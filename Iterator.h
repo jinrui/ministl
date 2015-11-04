@@ -2,7 +2,7 @@
  * Iterator.h
  *
  *  Created on: 2015年11月3日
- *      Author: apple
+ *      Author: jinrui
  */
 
 #ifndef ITERATOR_H_
