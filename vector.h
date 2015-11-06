@@ -40,7 +40,7 @@ namespace MiniStl {
 		 */
 		//vector(sizeType n, constRef value){}
 		~vector() {
-			dataAllocator::destory(start, finish);
+			destory(start, finish);
 			dataAllocator::deallocate();
 		}
 		//几个常见的接口
@@ -69,18 +69,30 @@ namespace MiniStl {
 			return *(end() - 1);
 		}
 		/**
-		 * 重点方法，注意超过容量
+		 * 重点方法，pushback可以调用insert
 		 */
-		void push_back() {
-
-		}
+		void push_back() ;
+		//多种泛化
+		void insert(iterator cur, const T& val);
+		void insert(iterator first,sizeT n, const T& val);
+		void insert(iterator position,inputIterator first,inputIterator last);
 		void pop_back() {
 			--finish;
-			dataAllocator::destory(finish);
+			destory(finish);
 		}
 		//清楚某个位置上元素，也不简单,注意调用copy
 		iterator erase(iterator position) {
-
+			return erase(position,position+1);
+		}
+		iterator erase(iterator first, iterator last) {
+				int dis = last - first;
+				auto cur = first + dis;
+				for(;cur < finish;++first,++cur)
+					*first = *cur;
+				for(int i = 0;i<dis;i++,--cur)
+					destory(&*cur);
+				finish = finish - dis;
+				return last = first;
 		}
 
 		void resize(sizeType newSz, const T& x) {

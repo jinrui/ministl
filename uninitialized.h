@@ -8,12 +8,31 @@
 #ifndef UNINITIALIZED_H_
 #define UNINITIALIZED_H_
 namespace MiniStl {
-	//这里没有针对pod data进行特化。
+	/**
+	 * TODO 这里面的操作应该是commit or rollback。异常处理没有做
+	 * 这里没有针对pod data进行特化。如果需要特化，就用traits技巧，也不难,主要是要用到copy函数，现在不想做
+	 */
 	template<typename InputIterator, typename ForwardIterator>
-	ForwardIterator uninitializedCopy(InputIterator first, InputIterator last,
-			ForwardIterator result) {
+	inline ForwardIterator uninitializedCopy(InputIterator first,
+			InputIterator last, ForwardIterator result) {
 		for (int i = 0; first != last; ++first, ++i)
 			construct(&*(result + i), *first);
+	}
+
+	template<typename T, typename ForwardIterator>
+	inline void uninitializedFill(ForwardIterator first, ForwardIterator last,
+			const T& result) {
+		for (; first != last; ++first)
+			construct(&*(first), result);
+	}
+
+	template<typename T, typename ForwardIterator, typename Size>
+	inline ForwardIterator uninitializedFillN(ForwardIterator first, Size n,
+			const T& result) {
+		ForwardIterator cur = first;
+		for (int i = 0; i < n; ++cur, ++i)
+			construct(&*cur, result);
+		return cur;
 	}
 }
 
