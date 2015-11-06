@@ -8,10 +8,12 @@
 #ifndef ITERATOR_H_
 #define ITERATOR_H_
 namespace MiniStl {
-	/***一些定义***/
+
 	typedef int ptrdiffT;
 
-	/****迭代器类型*****/
+	/**
+	 * 迭代器类型*
+	 */
 
 	//read only
 	struct inputIteratorTag {
@@ -33,8 +35,9 @@ namespace MiniStl {
 	struct randomAccessIteratorTag: public biDirectionalIteratorTag {
 	};
 
-
-	/*几种迭代器,提供了几种类型*/
+	/**
+	 *几种迭代器,提供了几种类型
+	 */
 	//分别是迭代器类型，值类型，前后节点间隔单位，一般为int，指针，引用
 	//input型iterator
 	template<typename T, typename Distance>
@@ -85,9 +88,10 @@ namespace MiniStl {
 		typedef T& ref;
 	};
 
-	/*iteratorTraits，这是iterator和容器算法的粘合剂，保证了兼容性.使用traits主要
-	 * 是因为有时需要使用iterator里的类型。使用偏特化主要是为了将class和原生指针兼容*/
-
+	/**
+	 * iteratorTraits，这是iterator和容器算法的粘合剂，保证了兼容性.使用traits主要
+	 * 是因为有时需要使用iterator里的类型。使用偏特化主要是为了将class和原生指针兼容
+	 */
 	template<typename iterator>
 	struct iteratorTraits {
 		typedef typename iterator::iteratorCategory iteratorCategory;
@@ -116,13 +120,14 @@ namespace MiniStl {
 		typedef const T* pointer;
 		typedef const T& ref;
 	};
-
-	/******几个获取iteratorTraits类型的函数*****/
-
+	Fz
+	/**
+	 * 几个获取iteratorTraits类型的函数
+	 */
 	//获取category
 	template<typename iterator>
-	inline typename iteratorTraits<iterator>::iteratorCategory
-	iteratorCategory(const iterator&){
+	inline typename iteratorTraits<iterator>::iteratorCategory iteratorCategory(
+			const iterator&) {
 		typedef iteratorTraits<iterator>::iteratorCategory categry;
 		return categry();
 	}
@@ -130,7 +135,7 @@ namespace MiniStl {
 	//获取valuetype
 	template<typename iterator>
 	inline typename iteratorTraits<iterator>::valueType*
-	iteratorValuetype(const iterator&){
+	iteratorValuetype(const iterator&) {
 		typedef iteratorTraits<iterator>::valueType type;
 		return static_cast<type*>(0);
 	}
@@ -138,7 +143,7 @@ namespace MiniStl {
 	//获取difftype
 	template<typename iterator>
 	inline typename iteratorTraits<iterator>::differenceType*
-	iteratordifferenceType(const iterator&){
+	iteratordifferenceType(const iterator&) {
 		typedef iteratorTraits<iterator>::differenceType type;
 		return static_cast<type*>(0);
 	}
