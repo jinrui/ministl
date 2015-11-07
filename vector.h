@@ -8,7 +8,8 @@
 #ifndef VECTOR_H_
 #define VECTOR_H_
 namespace MiniStl {
-	template<typename T, typename Alloc = alloc> class vector {
+	template<typename T, typename Alloc = alloc>
+	class vector {
 		typedef int sizeT;
 		typedef int ptrdiffT;
 		typedef T* iterator;
@@ -38,16 +39,16 @@ namespace MiniStl {
 		vector() :
 				start(0), finish(0), endOfStorage(0) {
 		}
-		vector(sizeType count, const T& value = T()){
-			start = dataAllocator::allocate(count*sizeof(T));
-			finish = start+count;
+		vector(sizeType count, const T& value = T()) {
+			start = dataAllocator::allocate(count * sizeof(T));
+			finish = start + count;
 			endOfStorage = finish;
-			uninitializedFillN(start, count,value);
+			uninitializedFillN(start, count, value);
 			//TODO 这里应该直接内存初始化，效率更高,选取2的幂
 		}
 		~vector() {
 			destory(start, finish);
-			dataAllocator::deallocate(start, capacity()*sizeof(T));
+			dataAllocator::deallocate(start, capacity() * sizeof(T));
 		}
 		/**
 		 * 元素访问
@@ -120,19 +121,34 @@ namespace MiniStl {
 			finish = start;
 		}
 
-		void push_back(const T& value){
-			insert(end(),value);;
+		void push_back(const T& value) {
+			insert(end(), value);
 		}
 		//多种泛化
-		void insert(iterator cur, const T& val);
-		void insert(iterator first, sizeT n, const T& val);
+		void insert(iterator cur, const T& val) {
+			insert(static_cast<constIterator>(cur), val);
+		}
+		void insert(iterator first, sizeT n, const T& val) {
+			for (int i = 0; i < n; i++)
+				insert(first, val);
+		}
 		void insert(constIterator cur, const T& val);
-		void insert(constIterator first, sizeT n, const T& val);
+		void insert(constIterator first, sizeT n, const T& val) {
+			for (int i = 0; i < n; i++)
+				insert(first, val);
+		}
 		template<typename inputIterator>
-		void insert(iterator position, inputIterator first, inputIterator last);
+		void insert(iterator position, inputIterator first,
+				inputIterator last) {
+			for (; first < last; ++first)
+				insert(position, *first);
+		}
 		template<typename inputIterator>
 		void insert(constIterator position, inputIterator first,
-				inputIterator last);
+				inputIterator last) {
+			for (; first < last; ++first)
+				insert(position, *first);
+		}
 
 		template<typename ...Args>
 		iterator emplace(constIterator pos, Args ... args);
@@ -175,7 +191,7 @@ namespace MiniStl {
 			else
 				insert(end(), newSz - size(), x);
 		}
-		void resize(sizeType newSz, T value = T()){
+		void resize(sizeType newSz, T value = T()) {
 			resize(newSz, T());
 		}
 		void swap(vector& other);
@@ -192,16 +208,22 @@ namespace MiniStl {
 		friend bool operator ==(const vector<T>& lhs,
 				const vector<T>& rhs) const;
 	};
+
 	template<typename T, typename Alloc = alloc>
-	vector<T>& vector<T>::operator =(const vector<T>& v) {
+	void vector<T,Alloc>::insert(constIterator cur, const T& val) {
+
+	}
+
+	template<typename T, typename Alloc = alloc>
+	vector<T,Alloc>& vector<T,Alloc>::operator =(const vector<T,Alloc>& v) {
 		return *this;
 	}
 
-	template<typename T, typename Alloc = alloc>
-	bool operator ==(vector<T>& lhs, vector<T>& rhs) const {
+	template<typename T, typename Alloc>
+	bool operator ==(vector<T,Alloc>& lhs, vector<T,Alloc>& rhs) const {
 
 	}
-	template<typename T, typename Alloc = alloc>
+	template<typename T, typename Alloc>
 	bool operator ==(const vector<T>& lhs, const vector<T>& rhs) const {
 
 	}
