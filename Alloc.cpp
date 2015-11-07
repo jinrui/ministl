@@ -73,7 +73,7 @@ namespace MiniStl {
 		sizeT bytesToGet = (totalBytes << 1) + (ROUNDUP(heapSize) >> 4);
 		if (left > 0) {
 			auto myFreeList = free_list + FREELISTINDEX(left);
-			((obj*) startFree)->next = *myFreeList;
+			((obj*) startFree)->next = *myFreeList;	//这一句执行错误
 			*myFreeList = (obj*) startFree;
 		}
 		//配置heap空间，用来补充内存池

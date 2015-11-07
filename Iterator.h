@@ -120,7 +120,6 @@ namespace MiniStl {
 		typedef const T* pointer;
 		typedef const T& ref;
 	};
-	Fz
 	/**
 	 * 几个获取iteratorTraits类型的函数
 	 */
@@ -128,7 +127,7 @@ namespace MiniStl {
 	template<typename iterator>
 	inline typename iteratorTraits<iterator>::iteratorCategory iteratorCategory(
 			const iterator&) {
-		typedef iteratorTraits<iterator>::iteratorCategory categry;
+		typedef typename iteratorTraits<iterator>::iteratorCategory categry;
 		return categry();
 	}
 
@@ -136,7 +135,7 @@ namespace MiniStl {
 	template<typename iterator>
 	inline typename iteratorTraits<iterator>::valueType*
 	iteratorValuetype(const iterator&) {
-		typedef iteratorTraits<iterator>::valueType type;
+		typedef typename iteratorTraits<iterator>::valueType type;
 		return static_cast<type*>(0);
 	}
 
@@ -144,7 +143,7 @@ namespace MiniStl {
 	template<typename iterator>
 	inline typename iteratorTraits<iterator>::differenceType*
 	iteratordifferenceType(const iterator&) {
-		typedef iteratorTraits<iterator>::differenceType type;
+		typedef typename iteratorTraits<iterator>::differenceType type;
 		return static_cast<type*>(0);
 	}
 }

@@ -16,180 +16,172 @@ namespace MiniStl {
 	struct falseType {
 	};
 	template<typename T>
-	class typeTraits {
+	struct typeTraits {
 		typedef falseType hasTrivialDefaultConstructor;
 		typedef falseType hasTrivialCopyConstructor;
 		typedef falseType hasTrivialAssignmentConstructor;
-		typedef falseType hasTrivialConstructor;
+		typedef falseType hasTrivialDestructor;
 		typedef falseType isPODType;
 	};
 //各种特化
 	template<>
-	class typeTraits<bool> {
+	struct typeTraits<bool> {
 		typedef trueType hasTrivialDefaultConstructor;
 		typedef trueType hasTrivialCopyConstructor;
 		typedef trueType hasTrivialAssignmentConstructor;
-		typedef trueType hasTrivialConstructor;
+		typedef trueType hasTrivialDestructor;
 		typedef trueType isPODType;
 	};
 	template<>
-	class typeTraits<char> {
+	struct typeTraits<char> {
 		typedef trueType hasTrivialDefaultConstructor;
 		typedef trueType hasTrivialCopyConstructor;
 		typedef trueType hasTrivialAssignmentConstructor;
-		typedef trueType hasTrivialConstructor;
+		typedef trueType hasTrivialDestructor;
 		typedef trueType isPODType;
 	};
 	template<>
-	class typeTraits<unsigned char> {
+	struct typeTraits<unsigned char> {
 		typedef trueType hasTrivialDefaultConstructor;
 		typedef trueType hasTrivialCopyConstructor;
 		typedef trueType hasTrivialAssignmentConstructor;
-		typedef trueType hasTrivialConstructor;
+		typedef trueType hasTrivialDestructor;
 		typedef trueType isPODType;
 	};
 	template<>
-	class typeTraits<short> {
+	struct typeTraits<short> {
 		typedef trueType hasTrivialDefaultConstructor;
 		typedef trueType hasTrivialCopyConstructor;
 		typedef trueType hasTrivialAssignmentConstructor;
-		typedef trueType hasTrivialConstructor;
+		typedef trueType hasTrivialDestructor;
 		typedef trueType isPODType;
 	};
 	template<>
-	class typeTraits<unsigned short> {
+	struct typeTraits<unsigned short> {
 		typedef trueType hasTrivialDefaultConstructor;
 		typedef trueType hasTrivialCopyConstructor;
 		typedef trueType hasTrivialAssignmentConstructor;
-		typedef trueType hasTrivialConstructor;
+		typedef trueType hasTrivialDestructor;
 		typedef trueType isPODType;
 	};
 	template<>
-	class typeTraits<int> {
+	struct typeTraits<int> {
 		typedef trueType hasTrivialDefaultConstructor;
 		typedef trueType hasTrivialCopyConstructor;
 		typedef trueType hasTrivialAssignmentConstructor;
-		typedef trueType hasTrivialConstructor;
+		typedef trueType hasTrivialDestructor;
 		typedef trueType isPODType;
 	};
 	template<>
-	class typeTraits<unsigned int> {
+	struct typeTraits<unsigned int> {
 		typedef trueType hasTrivialDefaultConstructor;
 		typedef trueType hasTrivialCopyConstructor;
 		typedef trueType hasTrivialAssignmentConstructor;
-		typedef trueType hasTrivialConstructor;
+		typedef trueType hasTrivialDestructor;
 		typedef trueType isPODType;
 	};
 	template<>
-	class typeTraits<int> {
+	struct typeTraits<long> {
 		typedef trueType hasTrivialDefaultConstructor;
 		typedef trueType hasTrivialCopyConstructor;
 		typedef trueType hasTrivialAssignmentConstructor;
-		typedef trueType hasTrivialConstructor;
+		typedef trueType hasTrivialDestructor;
 		typedef trueType isPODType;
 	};
 	template<>
-	class typeTraits<long> {
+	struct typeTraits<unsigned long> {
 		typedef trueType hasTrivialDefaultConstructor;
 		typedef trueType hasTrivialCopyConstructor;
 		typedef trueType hasTrivialAssignmentConstructor;
-		typedef trueType hasTrivialConstructor;
+		typedef trueType hasTrivialDestructor;
 		typedef trueType isPODType;
 	};
 	template<>
-	class typeTraits<unsigned long> {
+	struct typeTraits<long long> {
 		typedef trueType hasTrivialDefaultConstructor;
 		typedef trueType hasTrivialCopyConstructor;
 		typedef trueType hasTrivialAssignmentConstructor;
-		typedef trueType hasTrivialConstructor;
+		typedef trueType hasTrivialDestructor;
 		typedef trueType isPODType;
 	};
 	template<>
-	class typeTraits<long long> {
+	struct typeTraits<unsigned long long> {
 		typedef trueType hasTrivialDefaultConstructor;
 		typedef trueType hasTrivialCopyConstructor;
 		typedef trueType hasTrivialAssignmentConstructor;
-		typedef trueType hasTrivialConstructor;
+		typedef trueType hasTrivialDestructor;
 		typedef trueType isPODType;
 	};
 	template<>
-	class typeTraits<unsigned long long> {
+	struct typeTraits<float> {
 		typedef trueType hasTrivialDefaultConstructor;
 		typedef trueType hasTrivialCopyConstructor;
 		typedef trueType hasTrivialAssignmentConstructor;
-		typedef trueType hasTrivialConstructor;
+		typedef trueType hasTrivialDestructor;
 		typedef trueType isPODType;
 	};
 	template<>
-	class typeTraits<float> {
+	struct typeTraits<double> {
 		typedef trueType hasTrivialDefaultConstructor;
 		typedef trueType hasTrivialCopyConstructor;
 		typedef trueType hasTrivialAssignmentConstructor;
-		typedef trueType hasTrivialConstructor;
+		typedef trueType hasTrivialDestructor;
 		typedef trueType isPODType;
 	};
 	template<>
-	class typeTraits<double> {
+	struct typeTraits<long double> {
 		typedef trueType hasTrivialDefaultConstructor;
 		typedef trueType hasTrivialCopyConstructor;
 		typedef trueType hasTrivialAssignmentConstructor;
-		typedef trueType hasTrivialConstructor;
-		typedef trueType isPODType;
-	};
-	template<>
-	class typeTraits<long double> {
-		typedef trueType hasTrivialDefaultConstructor;
-		typedef trueType hasTrivialCopyConstructor;
-		typedef trueType hasTrivialAssignmentConstructor;
-		typedef trueType hasTrivialConstructor;
+		typedef trueType hasTrivialDestructor;
 		typedef trueType isPODType;
 	};
 	template<typename T>
-	class typeTraits<T*> {
+	struct typeTraits<T*> {
 		typedef trueType hasTrivialDefaultConstructor;
 		typedef trueType hasTrivialCopyConstructor;
 		typedef trueType hasTrivialAssignmentConstructor;
-		typedef trueType hasTrivialConstructor;
+		typedef trueType hasTrivialDestructor;
 		typedef trueType isPODType;
 	};
 	template<typename T>
-	class typeTraits<const T*> {
+	struct typeTraits<const T*> {
 		typedef trueType hasTrivialDefaultConstructor;
 		typedef trueType hasTrivialCopyConstructor;
 		typedef trueType hasTrivialAssignmentConstructor;
-		typedef trueType hasTrivialConstructor;
+		typedef trueType hasTrivialDestructor;
 		typedef trueType isPODType;
 	};
 	template<>
-	class typeTraits<char*> {
+	struct typeTraits<char*> {
 		typedef trueType hasTrivialDefaultConstructor;
 		typedef trueType hasTrivialCopyConstructor;
 		typedef trueType hasTrivialAssignmentConstructor;
-		typedef trueType hasTrivialConstructor;
+		typedef trueType hasTrivialDestructor;
 		typedef trueType isPODType;
 	};
 	template<>
-	class typeTraits<unsigned char*> {
+	struct typeTraits<unsigned char*> {
 		typedef trueType hasTrivialDefaultConstructor;
 		typedef trueType hasTrivialCopyConstructor;
 		typedef trueType hasTrivialAssignmentConstructor;
-		typedef trueType hasTrivialConstructor;
+		typedef trueType hasTrivialDestructor;
 		typedef trueType isPODType;
 	};
 	template<>
-	class typeTraits<const char*> {
+	struct typeTraits<const char*> {
 		typedef trueType hasTrivialDefaultConstructor;
 		typedef trueType hasTrivialCopyConstructor;
 		typedef trueType hasTrivialAssignmentConstructor;
-		typedef trueType hasTrivialConstructor;
+		typedef trueType hasTrivialDestructor;
 		typedef trueType isPODType;
 	};
 	template<>
-	class typeTraits<const unsigned char*> {
+	struct typeTraits<const unsigned char*> {
 		typedef trueType hasTrivialDefaultConstructor;
 		typedef trueType hasTrivialCopyConstructor;
 		typedef trueType hasTrivialAssignmentConstructor;
-		typedef trueType hasTrivialConstructor;
+		typedef trueType hasTrivialDestructor;
 		typedef trueType isPODType;
 	};
 }

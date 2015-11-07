@@ -7,6 +7,11 @@
 
 #ifndef VECTOR_H_
 #define VECTOR_H_
+#include "Alloc.h"
+#include "Allocator.h"
+#include "uninitialized.h"
+#include "Construct.h"
+#include <iostream>
 namespace MiniStl {
 	template<typename T, typename Alloc = alloc>
 	class vector {
@@ -39,16 +44,24 @@ namespace MiniStl {
 		vector() :
 				start(0), finish(0), endOfStorage(0) {
 		}
-		vector(sizeType count, const T& value = T()) {
-			start = dataAllocator::allocate(count * sizeof(T));
+		explicit vector(sizeType count, const T& value = T()) {
+			start = dataAllocator::allocate(count);
 			finish = start + count;
 			endOfStorage = finish;
 			uninitializedFillN(start, count, value);
-			//TODO 这里应该直接内存初始化，效率更高,选取2的幂
+		}
+		vector(const vector & other){
+			this->start = dataAllocator::allocate(other.capacity());
+			uninitializedCopy(other.start,other.finish,this->start);
+			this->finish = this->start+other.finish-other.start;
+			this->endOfStorage = start + other.endOfStorage-other.start;
+		}
+		vector(vector &&other){
+			swap(other);
 		}
 		~vector() {
-			destory(start, finish);
-			dataAllocator::deallocate(start, capacity() * sizeof(T));
+			destroy(start,finish);
+			dataAllocator::deallocate(start, capacity());
 		}
 		/**
 		 * 元素访问
@@ -101,9 +114,9 @@ namespace MiniStl {
 		sizeType capacity() const {
 			return endOfStorage - start;
 		}
-		sizeType maxSize() const {
-
-		}
+//		sizeType maxSize() const {
+//
+//		}
 		void reserve(sizeType size) {
 
 		}
@@ -162,11 +175,11 @@ namespace MiniStl {
 			return erase(position, position + 1);
 		}
 		iterator erase(iterator first, iterator last) {
-			int dis = last - first;
-			auto cur = first + dis;
+			sizeType dis = last - first;
+			iterator cur = first + dis;
 			for (; cur < finish; ++first, ++cur)
 				*first = *cur;
-			for (int i = 0; i < dis; i++, --cur)
+			for (sizeType i = 0; i < dis; i++, --cur)
 				destory(&*cur);
 			finish = finish - dis;
 			return last = first;
@@ -199,33 +212,62 @@ namespace MiniStl {
 		/**
 		 *运算符重载
 		 */
-		vector<T>& operator =(const vector<T>&);
+		vector& operator =(const vector&);
 
 		//	template<typename T, typename Alloc = alloc>
-		friend bool operator ==(vector<T>& lhs, vector<T>& rhs) const;
+		friend bool operator ==(vector& lhs, vector& rhs);
 
 		//template<typename T, typename Alloc = alloc>
-		friend bool operator ==(const vector<T>& lhs,
-				const vector<T>& rhs) const;
+		friend bool operator ==(const vector& lhs,
+				const vector& rhs);
 	};
 
-	template<typename T, typename Alloc = alloc>
-	void vector<T,Alloc>::insert(constIterator cur, const T& val) {
-
+	template<typename T, typename Alloc>
+	void vector<T,Alloc>::insert(vector<T,Alloc>::constIterator cur, const T& val) {
+		sizeType  nSize = size();
+		sizeType cap = capacity();
+		sizeType dataToCp = finish - cur;
+		if(nSize < cap){
+			auto tmp = finish;
+			for(;tmp>cur;--tmp)
+				*tmp = *(tmp-1);
+			*tmp = val;
+			finish++;
+		}else{
+			sizeType sizeToAlloc = 2*cap > 1?2*cap:1;
+			auto tmp = dataAllocator::allocate(sizeToAlloc);
+			auto _start = uninitializedCopy(start, cur, tmp);
+			*(tmp+cur-start) = val;
+			uninitializedCopy(cur, finish, tmp+cur-start+1);
+			destroy(start, finish);
+			dataAllocator::deallocate(start,  finish);
+			start = _start;
+			finish = start+nSize+1;
+			endOfStorage = start + sizeToAlloc;
+		}
 	}
 
-	template<typename T, typename Alloc = alloc>
+	template<typename T, typename Alloc>
+		void vector<T,Alloc>::swap(vector<T,Alloc>& other) {
+			std::swap(this->start,other.start);
+			std::swap(this->finish,other.finish);
+			std::swap(this->endOfStorage,other.endOfStorage);
+		}
+
+	template<typename T, typename Alloc>
 	vector<T,Alloc>& vector<T,Alloc>::operator =(const vector<T,Alloc>& v) {
+		vector tmp(v);
+		swap(tmp);
 		return *this;
 	}
 
 	template<typename T, typename Alloc>
-	bool operator ==(vector<T,Alloc>& lhs, vector<T,Alloc>& rhs) const {
-
+	bool operator ==(vector<T,Alloc>& lhs, vector<T,Alloc>& rhs) {
+		return true;
 	}
 	template<typename T, typename Alloc>
-	bool operator ==(const vector<T>& lhs, const vector<T>& rhs) const {
-
+	bool operator ==(const vector<T>& lhs, const vector<T>& rhs) {
+		return true;
 	}
 }
 

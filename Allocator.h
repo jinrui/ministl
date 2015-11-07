@@ -45,12 +45,11 @@ namespace MiniStl {
 	}
 	template<typename T, typename alloc>
 	void Allocator<T, alloc>::deallocate(pointer p) {
-		return alloc::deallocate(p);
+		return alloc::deallocate(p,sizeof(T));
 	}
 	template<typename T, typename alloc>
 	void Allocator<T, alloc>::deallocate(pointer p, sizeType n) {
-		for (sizeType i = 0; i < n; i++)
-			alloc::deallocate(p + i);
+			alloc::deallocate(p,sizeof(T)*n);
 	}
 }
 

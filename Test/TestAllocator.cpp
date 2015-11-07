@@ -5,23 +5,23 @@
  *      Author: jinrui
  */
 #include "TestAllocator.h"
-#include <vector>
+#include "../vector.h"
 #include "../Alloc.h"
 #include "../Allocator.h"
 #include <assert.h>
 namespace MiniStl {
 	namespace Test {
 		void TestAllocator::testCase1() {
-			std::vector<int, alloc> myvec;
-			assert(myvec.size() == 8);
+			vector<int, alloc> myvec(8);
+			assert(myvec.size() == 0);
 		}
 
 		void TestAllocator::testCase2() {
-			std::vector<int, alloc> myvec;
-			assert(myvec.size() == 8);
+			vector<int, alloc> myvec;
+			assert(myvec.size() == 0);
 		}
 		void TestAllocator::testCase3() {
-			std::vector<int, alloc> myvec;
+			vector<int, alloc> myvec;
 			assert(myvec.size() == 8);
 		}
 		void TestAllocator::testAll() {

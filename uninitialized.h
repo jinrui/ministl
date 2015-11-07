@@ -7,6 +7,7 @@
 
 #ifndef UNINITIALIZED_H_
 #define UNINITIALIZED_H_
+#include "Construct.h"
 namespace MiniStl {
 	/**
 	 * TODO 这里面的操作应该是commit or rollback。异常处理没有做
@@ -17,6 +18,7 @@ namespace MiniStl {
 			InputIterator last, ForwardIterator result) {
 		for (int i = 0; first != last; ++first, ++i)
 			construct(&*(result + i), *first);
+		return result;
 	}
 
 	template<typename T, typename ForwardIterator>
