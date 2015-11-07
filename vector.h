@@ -12,6 +12,7 @@ namespace MiniStl {
 		typedef int sizeT;
 		typedef int ptrdiffT;
 		typedef T* iterator;
+		typedef const T* constIterator;
 		typedef T valueType;
 		typedef T* pointer;
 		typedef const T* constPointer;
@@ -19,6 +20,7 @@ namespace MiniStl {
 		typedef const T& constRef;
 		typedef sizeT sizeType;
 		typedef ptrdiffT differenceType;
+		//	typedef reverseIterator<iterator> reverseIterator;
 
 	protected:
 		//默认的空间配置器为二级配置器
@@ -30,35 +32,27 @@ namespace MiniStl {
 		iterator finish;
 		iterator endOfStorage;
 
+	private:
 	public:
 		//几个常见的构造函数,析构函数
 		vector() :
 				start(0), finish(0), endOfStorage(0) {
 		}
-		/**
-		 * TODO 几个其他的接口，需要construct的支持，待做
-		 */
-		//vector(sizeType n, constRef value){}
+		vector(sizeType count, const T& value = T()){
+			start = dataAllocator::allocate(count*sizeof(T));
+			finish = start+count;
+			endOfStorage = finish;
+			uninitializedFillN(start, count,value);
+			//TODO 这里应该直接内存初始化，效率更高,选取2的幂
+		}
 		~vector() {
 			destory(start, finish);
-			dataAllocator::deallocate();
+			dataAllocator::deallocate(start, capacity()*sizeof(T));
 		}
-		//几个常见的接口
-		iterator begin() {
-			return start;
-		}
-		iterator end() {
-			return finish;
-		}
-		sizeType size() {
-			return static_cast<sizeType>(finish - start);
-		}
-		sizeType capacity() {
-			return endOfStorage - start;
-		}
-		bool empty() {
-			return finish == start;
-		}
+		/**
+		 * 元素访问
+		 */
+		ref at(sizeType) const;
 		ref operator[](sizeType n) {
 			return *(start + n);
 		}
@@ -68,31 +62,111 @@ namespace MiniStl {
 		ref back() {
 			return *(end() - 1);
 		}
+		pointer data() {
+			return &front();
+		}
+
 		/**
-		 * 重点方法，pushback可以调用insert
+		 * 迭代器
 		 */
-		void push_back() ;
+		iterator begin() {
+			return start;
+		}
+		constIterator cbegin() const {
+			return start;
+		}
+		iterator end() {
+			return finish;
+		}
+		constIterator cend() const {
+			return finish;
+		}
+		//TODO
+//		iterator rbegin() {
+//		}
+//		constIterator crbegin() const {
+//		}
+//		iterator rend() {
+//		}
+//		constIterator crend() const {
+//		}
+
+		/**
+		 * 容量
+		 */
+		sizeType size() const {
+			return static_cast<sizeType>(finish - start);
+		}
+		sizeType capacity() const {
+			return endOfStorage - start;
+		}
+		sizeType maxSize() const {
+
+		}
+		void reserve(sizeType size) {
+
+		}
+		void shrinkToFit() {
+
+		}
+		bool empty() {
+			return finish == start;
+		}
+		/**
+		 * 修饰符
+		 */
+		void clear() {
+			destory(start, finish);
+			finish = start;
+		}
+
+		void push_back(const T& value){
+			insert(end(),value);;
+		}
 		//多种泛化
 		void insert(iterator cur, const T& val);
-		void insert(iterator first,sizeT n, const T& val);
-		void insert(iterator position,inputIterator first,inputIterator last);
+		void insert(iterator first, sizeT n, const T& val);
+		void insert(constIterator cur, const T& val);
+		void insert(constIterator first, sizeT n, const T& val);
+		template<typename inputIterator>
+		void insert(iterator position, inputIterator first, inputIterator last);
+		template<typename inputIterator>
+		void insert(constIterator position, inputIterator first,
+				inputIterator last);
+
+		template<typename ...Args>
+		iterator emplace(constIterator pos, Args ... args);
+
 		void pop_back() {
 			--finish;
 			destory(finish);
 		}
 		//清楚某个位置上元素，也不简单,注意调用copy
 		iterator erase(iterator position) {
-			return erase(position,position+1);
+			return erase(position, position + 1);
 		}
 		iterator erase(iterator first, iterator last) {
-				int dis = last - first;
-				auto cur = first + dis;
-				for(;cur < finish;++first,++cur)
-					*first = *cur;
-				for(int i = 0;i<dis;i++,--cur)
-					destory(&*cur);
-				finish = finish - dis;
-				return last = first;
+			int dis = last - first;
+			auto cur = first + dis;
+			for (; cur < finish; ++first, ++cur)
+				*first = *cur;
+			for (int i = 0; i < dis; i++, --cur)
+				destory(&*cur);
+			finish = finish - dis;
+			return last = first;
+		}
+		iterator erase(constIterator position) {
+			return erase(position, position + 1);
+		}
+		iterator erase(constIterator first, constIterator last) {
+			int dis = last - first;
+			auto cur = first + dis;
+			for (; cur < finish; ++first, ++cur)
+				*first = *cur;
+			for (int i = 0; i < dis; i++, --cur)
+				destory(&*cur);
+			finish = finish - dis;
+			return last = first;
 		}
 
 		void resize(sizeType newSz, const T& x) {
@@ -101,7 +175,36 @@ namespace MiniStl {
 			else
 				insert(end(), newSz - size(), x);
 		}
+		void resize(sizeType newSz, T value = T()){
+			resize(newSz, T());
+		}
+		void swap(vector& other);
+
+		/**
+		 *运算符重载
+		 */
+		vector<T>& operator =(const vector<T>&);
+
+		//	template<typename T, typename Alloc = alloc>
+		friend bool operator ==(vector<T>& lhs, vector<T>& rhs) const;
+
+		//template<typename T, typename Alloc = alloc>
+		friend bool operator ==(const vector<T>& lhs,
+				const vector<T>& rhs) const;
 	};
+	template<typename T, typename Alloc = alloc>
+	vector<T>& vector<T>::operator =(const vector<T>& v) {
+		return *this;
+	}
+
+	template<typename T, typename Alloc = alloc>
+	bool operator ==(vector<T>& lhs, vector<T>& rhs) const {
+
+	}
+	template<typename T, typename Alloc = alloc>
+	bool operator ==(const vector<T>& lhs, const vector<T>& rhs) const {
+
+	}
 }
 
 #endif /* VECTOR_H_ */

@@ -6,8 +6,8 @@
  */
 #include "TestAllocator.h"
 #include <vector>
-#include "../alloc.h"
-#include "../allocator.h"
+#include "../Alloc.h"
+#include "../Allocator.h"
 #include <assert.h>
 namespace MiniStl {
 	namespace Test {

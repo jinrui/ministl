@@ -50,8 +50,8 @@ namespace MiniStl {
 				result = oomMalloc(n);
 			return result;
 		}
-		static void deallocate(void* p, sizeT) {
-			free(p); //第一级直接用free
+		static void deallocate(void* p, sizeT){
+				free(p); //第一级直接用free
 		}
 		static void* reallocate(void* p, sizeT, sizeT newSz) {
 			void* result = realloc(p, newSz);
