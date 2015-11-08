@@ -5,10 +5,10 @@
  *      Author: jinrui
  */
 #include <iostream>
-#include "Test/TestAllocator.h"
+#include "Test/TestVector.h"
 using namespace MiniStl;
 int main(){
-	MiniStl::Test::TestAllocator::testAll();
+	MiniStl::Test::TestVector::testAll();
 	std::cout<<"nihao";
 	return 0;
 }

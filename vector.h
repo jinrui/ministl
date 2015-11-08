@@ -11,6 +11,7 @@
 #include "Allocator.h"
 #include "uninitialized.h"
 #include "Construct.h"
+#include "ReverseIterator.h"
 #include <iostream>
 namespace MiniStl {
 	template<typename T, typename Alloc = alloc>
@@ -37,6 +38,7 @@ namespace MiniStl {
 		iterator start;
 		iterator finish;
 		iterator endOfStorage;
+		typedef ReverseIterator<iterator> reverseIterator;
 
 	private:
 	public:
@@ -95,15 +97,19 @@ namespace MiniStl {
 		constIterator cend() const {
 			return finish;
 		}
-		//TODO
-//		iterator rbegin() {
-//		}
-//		constIterator crbegin() const {
-//		}
-//		iterator rend() {
-//		}
-//		constIterator crend() const {
-//		}
+
+		iterator rbegin() {
+			return reverseIterator(end());
+		}
+		constIterator crbegin() const {
+			return reverseIterator(cend());
+		}
+		iterator rend() {
+			return  reverseIterator(begin());
+		}
+		constIterator crend() const {
+			return  reverseIterator(cbegin());
+		}
 
 		/**
 		 * 容量

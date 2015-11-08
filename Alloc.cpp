@@ -16,6 +16,7 @@ namespace MiniStl {
 		obj* volatile * myFreeList;
 		obj* result;
 		//>128则调用一级配置器
+		if(n == 0) return 0;
 		if (n > MAXBYTES)
 			return mallocAlloc::allocate(n);
 		myFreeList = free_list + FREELISTINDEX(n);
@@ -31,11 +32,12 @@ namespace MiniStl {
 
 	void alloc::deallocate(void* p, sizeT n) {
 		obj* volatile * myFreeList;
+		if(n == 0) return;
 		//>128则调用一级配置器
 		if (n > MAXBYTES)
 			return mallocAlloc::deallocate(p, n);
 		myFreeList = free_list + FREELISTINDEX(n);
-		((obj*) p)->next = *myFreeList;
+		((obj*) p)->next = *myFreeList;	//这里又除错
 		*myFreeList = (obj*) p;
 	}
 
@@ -90,6 +92,7 @@ namespace MiniStl {
 					*myFreeList = tmp->next;
 					startFree = (char*) tmp;
 					endFree = startFree + i;
+					nobjs = 20;
 					return chunkAlloc(n, nobjs);
 				}
 			}
@@ -98,6 +101,7 @@ namespace MiniStl {
 		}
 		heapSize += bytesToGet;
 		endFree = startFree + bytesToGet;
+		nobjs = 20;
 		return chunkAlloc(n, nobjs);
 	}
 

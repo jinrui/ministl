@@ -5,11 +5,11 @@
  *      Author: jinrui
  */
 
-#ifndef TEST_TESTALLOCATOR_H_
-#define TEST_TESTALLOCATOR_H_
+#ifndef TEST_TESTVECTOR_H_
+#define TEST_TESTVECTOR_H_
 namespace MiniStl{
 	namespace Test{
-		class TestAllocator{
+		class TestVector{
 		private:
 			static void testCase1();
 			static void testCase2();
@@ -23,4 +23,4 @@ namespace MiniStl{
 
 
 
-#endif /* TEST_TESTALLOCATOR_H_ */
+#endif /* TEST_TESTVECTOR_H_ */
