@@ -22,7 +22,7 @@ namespace MiniStl {
 		myFreeList = free_list + FREELISTINDEX(n);
 		result = *myFreeList;
 		if (0 == result) {
-			void* r = reFill(n);
+			void* r = reFill(ROUNDUP(n));
 			return r;
 		}
 		//调整freelist
@@ -50,7 +50,7 @@ namespace MiniStl {
 		myFreeList = free_list + FREELISTINDEX(newSz);
 		result = *myFreeList;
 		if (0 == result) {
-			void* r = reFill(newSz);
+			void* r = reFill(ROUNDUP(newSz));
 			return r;
 		}
 		//调整freelist

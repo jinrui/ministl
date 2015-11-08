@@ -144,30 +144,28 @@ namespace MiniStl {
 			insert(end(), value);
 		}
 		//多种泛化
-		void insert(iterator cur, const T& val) {
-			insert(static_cast<constIterator>(cur), val);
-		}
+		void insert(iterator cur, const T& val);
 		void insert(iterator first, sizeT n, const T& val) {
 			for (int i = 0; i < n; i++)
 				insert(first, val);
 		}
-		void insert(constIterator cur, const T& val);
-		void insert(constIterator first, sizeT n, const T& val) {
-			for (int i = 0; i < n; i++)
-				insert(first, val);
-		}
+//		void insert(constIterator cur, const T& val);
+//		void insert(constIterator first, sizeT n, const T& val) {
+//			for (int i = 0; i < n; i++)
+//				insert(first, val);
+//		}
 		template<typename inputIterator>
 		void insert(iterator position, inputIterator first,
 				inputIterator last) {
 			for (; first < last; ++first)
 				insert(position, *first);
 		}
-		template<typename inputIterator>
-		void insert(constIterator position, inputIterator first,
-				inputIterator last) {
-			for (; first < last; ++first)
-				insert(position, *first);
-		}
+//		template<typename inputIterator>
+//		void insert(constIterator position, inputIterator first,
+//				inputIterator last) {
+//			for (; first < last; ++first)
+//				insert(position, *first);
+//		}
 
 		template<typename ...Args>
 		iterator emplace(constIterator pos, Args ... args);
@@ -186,7 +184,7 @@ namespace MiniStl {
 			for (; cur < finish; ++first, ++cur)
 				*first = *cur;
 			for (sizeType i = 0; i < dis; i++, --cur)
-				destory(&*cur);
+				destroy(cur);
 			finish = finish - dis;
 			return last = first;
 		}
@@ -229,10 +227,11 @@ namespace MiniStl {
 	};
 
 	template<typename T, typename Alloc>
-	void vector<T,Alloc>::insert(vector<T,Alloc>::constIterator cur, const T& val) {
+	void vector<T,Alloc>::insert(iterator cur, const T& val) {
 		sizeType  nSize = size();
 		sizeType cap = capacity();
 		sizeType dataToCp = finish - cur;
+		sizeType pos = cur-start;
 		if(nSize < cap){
 			auto tmp = finish;
 			for(;tmp>cur;--tmp)
@@ -243,10 +242,10 @@ namespace MiniStl {
 			sizeType sizeToAlloc = 2*cap > 1?2*cap:1;
 			auto tmp = dataAllocator::allocate(sizeToAlloc);
 			auto _start = uninitializedCopy(start, cur, tmp);
-			*(tmp+cur-start) = val;
-			uninitializedCopy(cur, finish, tmp+cur-start+1);
+			*(tmp+pos) = val;
+			uninitializedCopy(cur, finish, tmp+pos+1);
 			destroy(start, finish);
-			dataAllocator::deallocate(start,  finish);
+			dataAllocator::deallocate(start,  cap);
 			start = _start;
 			finish = start+nSize+1;
 			endOfStorage = start + sizeToAlloc;
