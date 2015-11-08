@@ -34,10 +34,10 @@ namespace MiniStl {
 				base(rit.Base()), cur(base - 1) {
 
 		}
-		iterator Base() const{
+		iterator Base() const {
 			return base;
 		}
-		iterator Cur() const{
+		iterator Cur() const {
 			return cur;
 		}
 
@@ -72,6 +72,14 @@ namespace MiniStl {
 			auto tmp = this;
 			--this;
 			return *tmp;
+		}
+		friend ReverseIterator operator ==(const ReverseIterator lhs,
+				const ReverseIterator rhs) {
+			return lhs.Base() == rhs.Base();
+		}
+		friend ReverseIterator operator !=(const ReverseIterator lhs,
+				const ReverseIterator rhs) {
+			return !(operator ==(lhs, rhs));
 		}
 	};
 }
