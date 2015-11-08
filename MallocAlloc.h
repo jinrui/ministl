@@ -11,7 +11,7 @@
 
 namespace MiniStl {
 	//一级内存分配，包括一些异常处理
-	class mallocAlloc {
+	class MallocAlloc {
 		typedef int sizeT;
 	private:
 		//内存不足时的处理方法
@@ -68,7 +68,7 @@ namespace MiniStl {
 				}
 
 	};
-			void (*mallocAlloc::mallocAllocOomHandler)() = 0;
+			void (*MallocAlloc::mallocAllocOomHandler)() = 0;
 }
 
 #endif /* MALLOCALLOC_H_ */

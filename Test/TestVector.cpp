@@ -5,17 +5,18 @@
  *      Author: jinrui
  */
 #include "TestVector.h"
-#include "../vector.h"
 #include "../Alloc.h"
 #include "../Allocator.h"
 #include <assert.h>
 #include <iostream>
+
+#include "../Vector.h"
 namespace MiniStl {
 	namespace Test {
 		void TestVector::testCase1() {
-			vector<int, alloc> myvec(8);
+			Vector<int, Alloc> myvec(8);
 			assert(myvec.size() == 8);
-			vector<int> myvec1;
+			Vector<int> myvec1;
 			myvec1.push_back(123);
 			myvec1.push_back(4);
 			myvec1.push_back(5);
@@ -30,11 +31,11 @@ namespace MiniStl {
 		}
 
 		void TestVector::testCase2() {
-			vector<int, alloc> myvec;
+			Vector<int, Alloc> myvec;
 			assert(myvec.size() == 0);
 		}
 		void TestVector::testCase3() {
-			vector<int, alloc> myvec;
+			Vector<int, Alloc> myvec;
 			assert(myvec.size() == 0);
 		}
 		void TestVector::testAll() {

@@ -69,7 +69,7 @@ namespace MiniStl {
 	};
 
 	//biDirectional型iterator
-	template<typename T, typename Distance>
+	template<typename T, typename Distance = int>
 	struct biDirectionalIterator {
 		typedef biDirectionalIteratorTag iteratorCategory;
 		typedef T valueType;

@@ -1,5 +1,5 @@
 /*
- * vector
+ * Vector
  *
  *  Created on: 2015年11月6日
  *      Author: jinrui
@@ -9,13 +9,14 @@
 #define VECTOR_H_
 #include "Alloc.h"
 #include "Allocator.h"
-#include "uninitialized.h"
 #include "Construct.h"
 #include "ReverseIterator.h"
 #include <iostream>
+
+#include "Uninitialized.h"
 namespace MiniStl {
-	template<typename T, typename Alloc = alloc>
-	class vector {
+	template<typename T, typename Alloc = Alloc>
+	class Vector {
 		typedef int sizeT;
 		typedef int ptrdiffT;
 		typedef T* iterator;
@@ -43,25 +44,25 @@ namespace MiniStl {
 	private:
 	public:
 		//几个常见的构造函数,析构函数
-		vector() :
+		Vector() :
 				start(0), finish(0), endOfStorage(0) {
 		}
-		explicit vector(sizeType count, const T& value = T()) {
+		explicit Vector(sizeType count, const T& value = T()) {
 			start = dataAllocator::allocate(count);
 			finish = start + count;
 			endOfStorage = finish;
 			uninitializedFillN(start, count, value);
 		}
-		vector(const vector & other){
+		Vector(const Vector & other){
 			this->start = dataAllocator::allocate(other.capacity());
 			uninitializedCopy(other.start,other.finish,this->start);
 			this->finish = this->start+other.finish-other.start;
 			this->endOfStorage = start + other.endOfStorage-other.start;
 		}
-		vector(vector &&other){
+		Vector(Vector &&other){
 			swap(other);
 		}
-		~vector() {
+		~Vector() {
 			destroy(start,finish);
 			dataAllocator::deallocate(start, capacity());
 		}
@@ -85,26 +86,26 @@ namespace MiniStl {
 		/**
 		 * 迭代器
 		 */
-		iterator begin() {
+		iterator begin() const{
 			return start;
 		}
 		constIterator cbegin() const {
 			return start;
 		}
-		iterator end() {
+		iterator end() const{
 			return finish;
 		}
 		constIterator cend() const {
 			return finish;
 		}
 
-		iterator rbegin() {
+		iterator rbegin() const{
 			return reverseIterator(end());
 		}
 		constIterator crbegin() const {
 			return reverseIterator(cend());
 		}
-		iterator rend() {
+		iterator rend() const{
 			return  reverseIterator(begin());
 		}
 		constIterator crend() const {
@@ -211,23 +212,23 @@ namespace MiniStl {
 		void resize(sizeType newSz, T value = T()) {
 			resize(newSz, T());
 		}
-		void swap(vector& other);
+		void swap(Vector& other);
 
 		/**
 		 *运算符重载
 		 */
-		vector& operator =(const vector&);
+		Vector& operator =(const Vector&);
 
 		//	template<typename T, typename Alloc = alloc>
-		friend bool operator ==(vector& lhs, vector& rhs);
+		friend bool operator ==(Vector& lhs, Vector& rhs);
 
 		//template<typename T, typename Alloc = alloc>
-		friend bool operator ==(const vector& lhs,
-				const vector& rhs);
+		friend bool operator ==(const Vector& lhs,
+				const Vector& rhs);
 	};
 
 	template<typename T, typename Alloc>
-	void vector<T,Alloc>::insert(iterator cur, const T& val) {
+	void Vector<T,Alloc>::insert(iterator cur, const T& val) {
 		sizeType  nSize = size();
 		sizeType cap = capacity();
 		sizeType dataToCp = finish - cur;
@@ -253,26 +254,28 @@ namespace MiniStl {
 	}
 
 	template<typename T, typename Alloc>
-		void vector<T,Alloc>::swap(vector<T,Alloc>& other) {
+		void Vector<T,Alloc>::swap(Vector<T,Alloc>& other) {
 			std::swap(this->start,other.start);
 			std::swap(this->finish,other.finish);
 			std::swap(this->endOfStorage,other.endOfStorage);
 		}
 
 	template<typename T, typename Alloc>
-	vector<T,Alloc>& vector<T,Alloc>::operator =(const vector<T,Alloc>& v) {
-		vector tmp(v);
+	Vector<T,Alloc>& Vector<T,Alloc>::operator =(const Vector<T,Alloc>& v) {
+		Vector tmp(v);
 		swap(tmp);
 		return *this;
 	}
 
 	template<typename T, typename Alloc>
-	bool operator ==(vector<T,Alloc>& lhs, vector<T,Alloc>& rhs) {
-		return true;
+	bool operator ==(Vector<T,Alloc>& lhs, Vector<T,Alloc>& rhs) {
+		if(lhs.begin() == rhs.begin() && lhs.end() == rhs.end() && lhs.capacity() == rhs.capacity()) return true;
+		return false;
 	}
 	template<typename T, typename Alloc>
-	bool operator ==(const vector<T>& lhs, const vector<T>& rhs) {
-		return true;
+	bool operator ==(const Vector<T>& lhs, const Vector<T>& rhs) {
+		if(lhs.begin() == rhs.begin() && lhs.end() == rhs.end() && lhs.capacity() == rhs.capacity()) return true;
+				return false;
 	}
 }
 

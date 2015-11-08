@@ -11,7 +11,7 @@
  * 用的是二级内存分配机制，超过128K就用一级分配器，更小的就用二级
  */
 namespace MiniStl {
-	class alloc {
+	class Alloc {
 	private:
 		typedef int sizeT;
 		enum {
