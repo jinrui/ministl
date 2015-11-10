@@ -28,7 +28,8 @@ namespace MiniStl {
 		typedef const T& constRef;
 		typedef sizeT sizeType;
 		typedef ptrdiffT differenceType;
-		//	typedef reverseIterator<iterator> reverseIterator;
+		typedef ReverseIterator<iterator> reverseIterator;
+		typedef const reverseIterator constReverseIterator;
 
 	protected:
 		//默认的空间配置器为二级配置器
@@ -99,17 +100,17 @@ namespace MiniStl {
 			return finish;
 		}
 
-		iterator rbegin() const{
-			return reverseIterator(end());
+		reverseIterator rbegin() const{
+			return reverseIterator(end()-1);
 		}
-		constIterator crbegin() const {
-			return reverseIterator(cend());
+		constReverseIterator crbegin() const {
+			return reverseIterator(cend()-1);
 		}
-		iterator rend() const{
-			return  reverseIterator(begin());
+		reverseIterator rend() const{
+			return  reverseIterator(begin()-1);
 		}
-		constIterator crend() const {
-			return  reverseIterator(cbegin());
+		constReverseIterator crend() const {
+			return  reverseIterator(cbegin()-1);
 		}
 
 		/**
