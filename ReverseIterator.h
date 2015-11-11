@@ -20,22 +20,14 @@ namespace MiniStl {
 		typedef const pointer constPointer;
 		typedef const ref constRef;
 	private:
-		iterator base;
 		iterator cur;
 
 	public:
 		ReverseIterator() :
-				base(0), cur(0) {
+				cur(0) {
 		}
 		explicit ReverseIterator(const iterator& it) :
-				base(it), cur(it - 1) {
-		}
-		explicit ReverseIterator(const ReverseIterator& rit) :
-				base(rit.Base()), cur(base - 1) {
-
-		}
-		iterator Base() const {
-			return base;
+				cur(it) {
 		}
 		iterator Cur() const {
 			return cur;
@@ -54,7 +46,6 @@ namespace MiniStl {
 			return &(operator *());
 		}
 		ReverseIterator& operator ++() {
-			--base;
 			--cur;
 			return *this;
 		}
@@ -64,7 +55,6 @@ namespace MiniStl {
 			return *tmp;
 		}
 		ReverseIterator& operator --() {
-			++base;
 			++cur;
 			return *this;
 		}
@@ -73,12 +63,12 @@ namespace MiniStl {
 			--this;
 			return *tmp;
 		}
-		friend ReverseIterator operator ==(const ReverseIterator lhs,
-				const ReverseIterator rhs) {
-			return lhs.Base() == rhs.Base();
+		friend bool operator ==(const ReverseIterator& lhs,
+				const ReverseIterator& rhs) {
+			return lhs.Cur() == rhs.Cur();
 		}
-		friend ReverseIterator operator !=(const ReverseIterator lhs,
-				const ReverseIterator rhs) {
+		friend bool operator !=(const ReverseIterator& lhs,
+				const ReverseIterator& rhs) {
 			return !(operator ==(lhs, rhs));
 		}
 	};

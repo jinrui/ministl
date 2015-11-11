@@ -46,6 +46,14 @@ namespace MiniStl {
 		ListIterator() :
 				np(0) {
 		}
+		ListIterator(const ListIterator& other) :
+				np(other.np) {
+		}
+		ListIterator& operator =(const ListIterator& other) {
+			ListIterator tmp(other);
+			std::swap(tmp.np, np);
+			return *this;
+		}
 		np& operator ++() {
 			np = np->next;
 			return *this;
@@ -76,15 +84,25 @@ namespace MiniStl {
 				cur = cur->next;
 			return ListIterator(cur);
 		}
+		bool operator <(const ListIterator& other) const {
+			return *this < *other;
+		}
+		bool operator ==(const ListIterator& other) const {
+			return np == other.np;
+		}
+		bool operator !=(const ListIterator& other) const {
+			return !operator();
+		}
 		ListIterator operator -(int i) {
 			auto cur = np;
 			while (i--)
 				cur = cur->prev;
 			return ListIterator(cur);
 		}
-		sizeType operator -(const ListIterator& other){
+		sizeType operator -(const ListIterator& other) {
 			sizeType result = 0;
-			for(auto node = np;node != other.np;node = node->next,++result);
+			for (auto node = np; node != other.np; node = node->next, ++result)
+				;
 			return result;
 		}
 	};
@@ -114,6 +132,31 @@ namespace MiniStl {
 			auto tmp = dataAlloctor::allocate();
 			construct(tmp, Node(val));
 			return ListIterator(tmp);
+		}
+		void sort(iterator start, iterator end) {
+			if (start == end)
+				return;
+			iterator cur = start;
+
+			for (cur = start; cur != end; ++cur) {
+				if (cur > start)
+					cur = start;
+			}
+			std::swap(*cur, *start);
+			sort(++start, end);
+		}
+		template<typename Compare>
+		void sort(iterator start, iterator end, Compare cmp) {
+			if (start == end)
+				return;
+			iterator cur = start;
+
+			for (cur = start; cur != end; ++cur) {
+				if (cmp(cur, start) == 1)
+					cur = start;
+			}
+			std::swap(*cur, *start);
+			sort(++start, end);
 		}
 	public:
 		/**
@@ -244,57 +287,148 @@ namespace MiniStl {
 		 * 运算符重载
 		 */
 		List& operator =(const List& li) {
-			swap(List(li));
+			if (&li != this)
+				swap(List(li));
 			return *this;
 		}
 
-		friend bool operator ==(const List& lhs, const List& rhs) const;
-		friend bool operator !=(const List& lhs, const List& rhs) const;
+		friend bool operator ==(const List& lhs, const List& rhs) {
+			auto lit = lhs.begin();
+			auto rit = rhs.begin();
+			for (; lit != lhs.end() && rit != rhs.end() && *lit == *rit;
+					++lit, ++rit)
+				;
+			if (lit != lhs.end() || rit != rhs.end())
+				return false;
+			return true;
+		}
+		friend bool operator !=(const List& lhs, const List& rhs) {
+			return !(operator ==(lhs, rhs));
+		}
 
 		/**
 		 * 操作
 		 */
-		void merge(List& other){
-
+		void headToTail(){
+			head = tail;
+		}
+		void splice(iterator pos, List& other) {
+			splice(pos, other, other.begin(), other.end());
+		}
+		void splice(iterator pos, List& other, iterator first, iterator last) {
+			this->insert(pos, first, last);
+			other.headToTail();
+		}
+		void merge(List& other) {
+			iterator cur1 = begin();
+			iterator cur2 = other.begin();
+			iterator cur = head;
+			while (cur1 != end() && cur2 != other.end()) {
+				if (cur1 != begin() && *cur1 > *(cur1 - 1))
+					break;
+				if (*cur1 < *cur2) {
+					cur.nb->next = cur1.nb;
+					cur1.nb.prev = cur.nb.prev;
+					cur = cur1;
+					++cur1;
+				} else {
+					cur.nb->next = cur2.nb;
+					cur2.nb.prev = cur.nb.prev;
+					cur = cur2;
+					++cur2;
+				}
+			}
+			if (cur2 == other.end())
+				return;
+			cur.nb->next = cur2.nb;
+			cur2.nb.prev = cur.nb.prev;
+			tail = other.tail;
 		}
 		template<typename compare>
-		void merge(List& other,compare cmp){
-
+		void merge(List& other, compare cmp) {
+			iterator cur1 = begin();
+			iterator cur2 = other.begin();
+			iterator cur = head;
+			while (cur1 != end() && cur2 != other.end()) {
+				if (cur1 != begin() && *cur1 > *(cur1 - 1))
+					break;
+				if (cmp(*cur1, *cur2) < 0) {
+					cur.nb->next = cur1.nb;
+					cur1.nb.prev = cur.nb.prev;
+					cur = cur1;
+					++cur1;
+				} else {
+					cur.nb->next = cur2.nb;
+					cur2.nb.prev = cur.nb.prev;
+					cur = cur2;
+					++cur2;
+				}
+			}
+			if (cur2 == other.end())
+				return;
+			cur.nb->next = cur2.nb;
+			cur2.nb.prev = cur.nb.prev;
+			tail = other.tail;
 		}
-		void reverse(){
-
+		void reverse() {
+			auto fst = begin();
+			auto snd = fst + 1;
+			while (fst != end() && snd != end()) {
+				auto tmp = fst.np->prev;
+				fst.np->prev = fst.np->next;
+				fst.np->next = tmp;
+				fst = snd;
+				snd = fst + 1;
+			}
+			auto tmp = head;
+			head = tail;
+			tail = tmp;
 		}
-		void sort(){
-
+		void sort() {
+			sort(begin(), end());
 		}
-		void unique(){
-
+		template<typename Compare>
+		void sort(Compare comp) {
+			sort(begin(), end(), comp);
 		}
-		void remove(const T&val){
-
+		void unique() {
+			int num = 0;
+			iterator first = begin();
+			for (auto it = begin(); it != end();) {
+				if (num == 0) {
+					first = it;
+					++it;
+				} else {
+					if (*it != *first) {
+						erase(first + 1, it);
+						num = 0;
+					} else {
+						++it;
+						++num;
+					}
+				}
+			}
+		}
+		void remove(const T&val) {
+			for (auto& it = begin(); it != end();) {
+				if (*it == val) {
+					auto tmp = it + 1;
+					erase(it);
+				} else
+					++it;
+			}
 		}
 		template<typename UnaryPredicate>
-		void removeIf(UnaryPredicate p){
-
+		void removeIf(UnaryPredicate p) {
+			for (auto& it = begin(); it != end();) {
+				if (p(*it)) {
+					auto tmp = it + 1;
+					erase(it);
+				} else
+					++it;
+			}
 		}
 	};
-
-	template<typename T, typename Alloctor>
-	bool operator ==(const List<T, Alloctor>& lhs,
-			const List<T, Alloctor>& rhs) const {
-		auto lit = lhs.begin();
-		auto rit = rhs.begin();
-		for (; lit != lhs.end() && rit != rhs.end() && *lit == *rit;
-				++lit, ++rit)
-			;
-		if (lit != lhs.end() || rit != rhs.end())
-			return false;
-		return true;
-	}
-	template<typename T, typename Alloctor>
-	bool operator !=(const List& lhs, const List& rhs) const {
-		return !(operator ==(lhs, rhs));
-	}
 }
 
 #endif /* LIST_H_ */

@@ -16,27 +16,27 @@ namespace MiniStl {
 		void TestVector::testCase1() {
 			Vector<int, Alloc> myvec(8);
 			assert(myvec.size() == 8);
-			Vector<int> myvec1;
-			myvec1.push_back(123);
-			myvec1.push_back(4);
-			myvec1.push_back(5);
-			assert(myvec1.capacity() == 4);
-			myvec1.insert(myvec1.begin(),88);
-			myvec1.insert(myvec1.begin()+1,8998);
-			myvec1.insert(myvec1.begin()+1,86788);
-			myvec1.erase(myvec1.begin());
-			assert(myvec1[0] == 86788);
-			for(auto it = myvec1.begin();it != myvec1.end();++it)
-							std::cout<<*it<<" ";
+			for (int i = 0; i < 8; i++)
+				myvec[i] = i;
+			myvec.push_back(9);
+			myvec.push_back(10);
+			myvec.insert(myvec.begin() + 8, 8);
+			int i = 0;
+			for (Vector<int>::constIterator it = myvec.begin();
+					it != myvec.end(); ++it, ++i) {
+				assert(*it == i);
+			}
+			i--;
+			for (Vector<int>::constReverseIterator it = myvec.crbegin();
+					it != myvec.crend(); ++it, --i) {
+				assert(*it == i);
+			}
+			myvec.at(100);
 		}
 
 		void TestVector::testCase2() {
-			Vector<int, Alloc> myvec;
-			assert(myvec.size() == 0);
 		}
 		void TestVector::testCase3() {
-			Vector<int, Alloc> myvec;
-			assert(myvec.size() == 0);
 		}
 		void TestVector::testAll() {
 			testCase1();

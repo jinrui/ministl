@@ -17,6 +17,7 @@
 namespace MiniStl {
 	template<typename T, typename Alloc = Alloc>
 	class Vector {
+	public:
 		typedef int sizeT;
 		typedef int ptrdiffT;
 		typedef T* iterator;
@@ -29,8 +30,8 @@ namespace MiniStl {
 		typedef sizeT sizeType;
 		typedef ptrdiffT differenceType;
 		typedef ReverseIterator<iterator> reverseIterator;
-		typedef const reverseIterator constReverseIterator;
-
+		typedef  ReverseIterator<constIterator> constReverseIterator;
+		//typedef  const reverseIterator constReverseIterator;
 	protected:
 		//默认的空间配置器为二级配置器
 		typedef Allocator<T, Alloc> dataAllocator;
@@ -40,7 +41,6 @@ namespace MiniStl {
 		iterator start;
 		iterator finish;
 		iterator endOfStorage;
-		typedef ReverseIterator<iterator> reverseIterator;
 
 	private:
 	public:
@@ -54,23 +54,28 @@ namespace MiniStl {
 			endOfStorage = finish;
 			uninitializedFillN(start, count, value);
 		}
-		Vector(const Vector & other){
+		Vector(const Vector & other) {
 			this->start = dataAllocator::allocate(other.capacity());
-			uninitializedCopy(other.start,other.finish,this->start);
-			this->finish = this->start+other.finish-other.start;
-			this->endOfStorage = start + other.endOfStorage-other.start;
+			uninitializedCopy(other.start, other.finish, this->start);
+			this->finish = this->start + other.finish - other.start;
+			this->endOfStorage = start + other.endOfStorage - other.start;
 		}
-		Vector(Vector &&other){
+		Vector(Vector &&other) {
 			swap(other);
 		}
 		~Vector() {
-			destroy(start,finish);
+			destroy(start, finish);
 			dataAllocator::deallocate(start, capacity());
 		}
 		/**
 		 * 元素访问
 		 */
-		ref at(sizeType) const;
+		ref at(sizeType pos) const{
+			if(pos >= size() || pos<0){
+				std::cerr<<"out of range!"<<std::endl;
+				exit(1);
+			}
+		}
 		ref operator[](sizeType n) {
 			return *(start + n);
 		}
@@ -87,30 +92,29 @@ namespace MiniStl {
 		/**
 		 * 迭代器
 		 */
-		iterator begin() const{
+		iterator begin() const {
 			return start;
 		}
 		constIterator cbegin() const {
 			return start;
 		}
-		iterator end() const{
+		iterator end() const {
 			return finish;
 		}
 		constIterator cend() const {
 			return finish;
 		}
-
-		reverseIterator rbegin() const{
-			return reverseIterator(end()-1);
+		reverseIterator rbegin()  const{
+			return reverseIterator(end() - 1);
 		}
 		constReverseIterator crbegin() const {
-			return reverseIterator(cend()-1);
+			return constReverseIterator(cend() - 1);
 		}
-		reverseIterator rend() const{
-			return  reverseIterator(begin()-1);
+		reverseIterator rend()  const{
+			return reverseIterator(begin() - 1);
 		}
 		constReverseIterator crend() const {
-			return  reverseIterator(cbegin()-1);
+			return constReverseIterator(cbegin() - 1);
 		}
 
 		/**
@@ -220,63 +224,65 @@ namespace MiniStl {
 		 */
 		Vector& operator =(const Vector&);
 
-		//	template<typename T, typename Alloc = alloc>
-		friend bool operator ==(Vector& lhs, Vector& rhs);
+		template<typename E, typename A>
+		friend bool operator ==(const Vector<E, A>& lhs,
+				const Vector<E, A>& rhs);
 
-		//template<typename T, typename Alloc = alloc>
-		friend bool operator ==(const Vector& lhs,
-				const Vector& rhs);
+		template<typename E, typename A>
+		friend bool operator !=(const Vector<E, A>& lhs,
+				const Vector<E, A>& rhs);
 	};
 
 	template<typename T, typename Alloc>
-	void Vector<T,Alloc>::insert(iterator cur, const T& val) {
-		sizeType  nSize = size();
+	void Vector<T, Alloc>::insert(iterator cur, const T& val) {
+		sizeType nSize = size();
 		sizeType cap = capacity();
 		sizeType dataToCp = finish - cur;
-		sizeType pos = cur-start;
-		if(nSize < cap){
+		sizeType pos = cur - start;
+		if (nSize < cap) {
 			auto tmp = finish;
-			for(;tmp>cur;--tmp)
-				*tmp = *(tmp-1);
+			for (; tmp > cur; --tmp)
+				*tmp = *(tmp - 1);
 			*tmp = val;
 			finish++;
-		}else{
-			sizeType sizeToAlloc = 2*cap > 1?2*cap:1;
+		} else {
+			sizeType sizeToAlloc = 2 * cap > 1 ? 2 * cap : 1;
 			auto tmp = dataAllocator::allocate(sizeToAlloc);
 			auto _start = uninitializedCopy(start, cur, tmp);
-			*(tmp+pos) = val;
-			uninitializedCopy(cur, finish, tmp+pos+1);
+			*(tmp + pos) = val;
+			uninitializedCopy(cur, finish, tmp + pos + 1);
 			destroy(start, finish);
-			dataAllocator::deallocate(start,  cap);
+			dataAllocator::deallocate(start, cap);
 			start = _start;
-			finish = start+nSize+1;
+			finish = start + nSize + 1;
 			endOfStorage = start + sizeToAlloc;
 		}
 	}
 
 	template<typename T, typename Alloc>
-		void Vector<T,Alloc>::swap(Vector<T,Alloc>& other) {
-			std::swap(this->start,other.start);
-			std::swap(this->finish,other.finish);
-			std::swap(this->endOfStorage,other.endOfStorage);
-		}
+	void Vector<T, Alloc>::swap(Vector<T, Alloc>& other) {
+		std::swap(this->start, other.start);
+		std::swap(this->finish, other.finish);
+		std::swap(this->endOfStorage, other.endOfStorage);
+	}
 
 	template<typename T, typename Alloc>
-	Vector<T,Alloc>& Vector<T,Alloc>::operator =(const Vector<T,Alloc>& v) {
+	Vector<T, Alloc>& Vector<T, Alloc>::operator =(const Vector<T, Alloc>& v) {
 		Vector tmp(v);
 		swap(tmp);
 		return *this;
 	}
 
 	template<typename T, typename Alloc>
-	bool operator ==(Vector<T,Alloc>& lhs, Vector<T,Alloc>& rhs) {
-		if(lhs.begin() == rhs.begin() && lhs.end() == rhs.end() && lhs.capacity() == rhs.capacity()) return true;
+	bool operator ==(const Vector<T, Alloc>& lhs, const Vector<T, Alloc>& rhs) {
+		if (lhs.begin() == rhs.begin() && lhs.end() == rhs.end()
+				&& lhs.capacity() == rhs.capacity())
+			return true;
 		return false;
 	}
 	template<typename T, typename Alloc>
-	bool operator ==(const Vector<T>& lhs, const Vector<T>& rhs) {
-		if(lhs.begin() == rhs.begin() && lhs.end() == rhs.end() && lhs.capacity() == rhs.capacity()) return true;
-				return false;
+	bool operator !=(const Vector<T, Alloc>& lhs, const Vector<T, Alloc>& rhs) {
+		return !operator ==(lhs, rhs);
 	}
 }
 

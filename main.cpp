@@ -9,7 +9,6 @@
 using namespace MiniStl;
 int main(){
 	MiniStl::Test::TestVector::testAll();
-	std::cout<<"nihao";
 	return 0;
 }
 
