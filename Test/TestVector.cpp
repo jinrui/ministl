@@ -31,7 +31,6 @@ namespace MiniStl {
 					it != myvec.crend(); ++it, --i) {
 				assert(*it == i);
 			}
-			myvec.at(100);
 		}
 
 		void TestVector::testCase2() {

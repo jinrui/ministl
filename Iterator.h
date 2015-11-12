@@ -38,7 +38,7 @@ namespace MiniStl {
 	/**
 	 *几种迭代器,提供了几种类型
 	 */
-	//分别是迭代器类型，值类型，前后节点间隔单位，一般为int，指针，引用
+	//分别是迭代器类型，值类型，前后节点间隔单位(一般为int)，指针，引用
 	//input型iterator
 	template<typename T, typename Distance>
 	struct inputIterator {

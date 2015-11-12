@@ -117,11 +117,11 @@ namespace MiniStl {
 		typedef T valueType;
 		typedef T& ref;
 		typedef ListIterator<T> iterator;
-		typedef const iterator constIterator;
+		typedef ListIterator<const T> constIterator;
 		typedef const ref constRef;
 		typedef T* pointer;
 		typedef ReverseIterator<iterator> reverseIterator;
-		typedef const reverseIterator constReverseIterator;
+		typedef  ReverseIterator<constIterator> constReverseIterator;
 		iterator head;
 		iterator tail; //双向环状结构,head,tail不指向实际数据,都是哨兵
 	private:
@@ -253,12 +253,7 @@ namespace MiniStl {
 			insert(end(), val);
 		}
 		void pop_back() {
-			auto tmp = tail - 1;
-			auto tmp2 = tmp - 1;
-			destroy(tmp, tail);
-			dataAlloctor::deallocate(tmp.np);
-			tmp2.np->next = tail;
-			tail.np->prev = tmp2;
+			erase(end()-1);
 		}
 		void erase(iterator pos) {
 			auto bef = pos.np->prev;

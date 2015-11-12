@@ -12,7 +12,6 @@
 #include "Construct.h"
 #include "ReverseIterator.h"
 #include <iostream>
-
 #include "Uninitialized.h"
 namespace MiniStl {
 	template<typename T, typename Alloc = Alloc>
