@@ -11,30 +11,30 @@
 #include "ReverseIterator.h"
 #include "Allocator.h"
 #include "Alloc.h"
+#include "Uninitialized.h"
 namespace MiniStl {
 	template<typename T, int BufSize>
 	class DequeIterator: public randomAccessIterator<T> {
-	private:
+	public:
 		void setMapNode(mapPointer node) {
 			demap = node;
-			first = *mapPointer;
-			last = *mapPointer + mapSize;
+			first = *node;
+			last = *node + bufLen;
 		}
 	public:
 		typedef pointer* mapPointer;
 		typedef int sizeType;
 		typedef DequeIterator self;
 		DequeIterator() :
-				deMap(0), first(0), last(0), cur(0), mapSize(BufSize) {
+				deMap(0), first(0), last(0), cur(0), bufLen(BufSize/sizeof(T)) {
 		}
 		DequeIterator(mapPointer _deMap, pointer _first, pointer _last,
 				pointer _cur) :
-				deMap(_deMap), first(_first), last(_last), cur(_cur), mapSize(
-						BufSize) {
+				deMap(_deMap), first(_first), last(_last), cur(_cur),  bufLen(BufSize/sizeof(T)) {
 		}
 		DequeIterator(const DequeIterator& other) :
 				deMap(other.deMap), first(other.first), last(other.last), cur(
-						other.cur), mapSize(other.mapSize) {
+						other.cur), bufLen(other.bufLen) {
 		}
 		ref operator *() const {
 			return *cur;
@@ -68,12 +68,12 @@ namespace MiniStl {
 		}
 		self& operator +=(differenceType n) {
 			auto tmp = cur - first + n;
-			if (tmp >= 0 && tmp < mapSize)
+			if (tmp >= 0 && tmp < bufLen)
 				cur += n;
 			else {
-				auto off = tmp >= 0 ? tmp / mapSize : (tmp + 1) / mapSize - 1;
+				auto off = tmp >= 0 ? tmp / bufLen : (tmp + 1) / bufLen - 1;
 				setMapNode(deMap + off);
-				cur = first + (tmp - off * mapSize);
+				cur = first + (tmp - off * bufLen);
 			}
 			return *this;
 		}
@@ -102,14 +102,14 @@ namespace MiniStl {
 		pointer first;
 		pointer last;
 		pointer cur;
-		sizeType mapSize;
+		sizeType bufLen;
 	};
 	template<typename T, typename Alloc = Alloc, int BufSize = 512>
 	class Deque {
 	public:
 		//默认的空间配置器为二级配置器
 		typedef Allocator<T, Alloc> dataAlloctor;
-
+		typedef Allocator<T*, Alloc> mapAlloctor;
 		typedef int sizeT;
 		typedef int ptrdiffT;
 		typedef DequeIterator<T, BufSize> iterator;
@@ -128,14 +128,41 @@ namespace MiniStl {
 		iterator start;
 		iterator finish;
 		mapPointer demap;
-		sizeType mapSize;
-
+		sizeType mapSize;	//map的长度
+		sizeType bufLen;
+	private:
+		/**
+		 * 辅助函数
+		 */
+		void allocateBuf(sizeType nodesToAdd) {
+			allocateMap(nodesToAdd);
+			for (int i = 1; i <= nodesToAdd; i++) {
+				auto newBuf = dataAlloctor::allocate(BufSize);
+				*(start.demap - i) = newBuf;
+			}
+		}
+		void allocateMap(sizeType nodesToAdd) {
+			auto oldNodes = finish.demap - start.demap + 1;
+			auto newNodes = oldNodes + nodesToAdd;
+			auto newMapSize = mapSize + std::max(mapSize, nodesToAdd) + 2;
+			auto newMap = mapAlloctor::allocate(newMapSize);
+			auto newMapStart = newMap + (newMapSize - newNodes) / 2
+					+ nodesToAdd;
+			uninitializedCopy(start.demap, start.demap + oldNodes, newMapStart);
+			mapAlloctor::deallocate(demap, mapSize);
+			demap = newMap;
+			mapSize = newMapSize;
+			start.setMapNode(newMapStart);
+			start.cur = start.first;
+			finish.setMapNode(newMapStart + oldNodes - 1);
+			finish.cur = finish.last + 1;
+		}
 	public:
 		/**
 		 * 成员函数
 		 */
 		Deque() :
-				start(), finish(), demap(0), mapSize(BufSize) {
+				start(), finish(), demap(0), mapSize(0),bufLen(BufSize/sizeof(T)) {
 		}
 		Deque(const Deque& other) {
 
@@ -208,14 +235,31 @@ namespace MiniStl {
 		 * 修饰符
 		 */
 		void clear() {
+			//保留一个缓冲区
 			destroy(start, finish);
 			//dataAlloctor::deallocate(start, size());
 		}
 		void insert(iterator pos, const T& val) {
-
+			insert(pos,1,val);
 		}
 		void insert(iterator pos, sizeType count, const T& val) {
-
+			auto left = pos - start;
+			auto right = finish - pos;
+			if (left < right) {
+				auto tmp = start;
+				if (count > start.cur - *demap)
+					allocateBuf((count-(start.cur - *demap))/bufLen + 1);
+				start -= count;
+				uninitializedCopy(tmp, pos - 1, start);
+				*(start + pos - tmp) = val;
+			} else {
+				auto tmp = finish;
+				if (finish.cur+count > *(demap+mapSize-1)+bufLen)
+					allocateBuf((count + finish.cur - (*(demap+mapSize-1)+bufLen))/bufLen = 1);
+				finish+=count;
+				uninitializedCopyBck(pos, tmp, pos + 1);
+				*(pos) = val;
+			}
 		}
 		template<typename InputIterator>
 		void insert(iterator pos, InputIterator first, InputIterator last) {

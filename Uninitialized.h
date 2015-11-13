@@ -20,6 +20,15 @@ namespace MiniStl {
 			construct(&*(result + i), *first);
 		return result;
 	}
+	template<typename InputIterator, typename ForwardIterator>
+	inline ForwardIterator uninitializedCopyBck(InputIterator first,
+			InputIterator last, ForwardIterator result) {
+		first--, last--;
+		int len = last - first;
+		for (int i = len; first != last; --last, --i)
+			construct(&*(result + i), *last);
+		return result;
+	}
 
 	template<typename T, typename ForwardIterator>
 	inline void uninitializedFill(ForwardIterator first, ForwardIterator last,
