@@ -26,11 +26,12 @@ namespace MiniStl {
 		typedef int sizeType;
 		typedef DequeIterator self;
 		DequeIterator() :
-				deMap(0), first(0), last(0), cur(0), bufLen(BufSize/sizeof(T)) {
+				deMap(0), first(0), last(0), cur(0), bufLen(BufSize / sizeof(T)) {
 		}
 		DequeIterator(mapPointer _deMap, pointer _first, pointer _last,
 				pointer _cur) :
-				deMap(_deMap), first(_first), last(_last), cur(_cur),  bufLen(BufSize/sizeof(T)) {
+				deMap(_deMap), first(_first), last(_last), cur(_cur), bufLen(
+						BufSize / sizeof(T)) {
 		}
 		DequeIterator(const DequeIterator& other) :
 				deMap(other.deMap), first(other.first), last(other.last), cur(
@@ -124,7 +125,7 @@ namespace MiniStl {
 		typedef ptrdiffT differenceType;
 		typedef ReverseIterator<iterator> reverseIterator;
 		typedef ReverseIterator<constIterator> constReverseIterator;
-	protected:
+	public:
 		iterator start;
 		iterator finish;
 		mapPointer demap;
@@ -134,6 +135,16 @@ namespace MiniStl {
 		/**
 		 * 辅助函数
 		 */
+		void fillInit(sizeType n, const T&val) {
+
+		}
+		template<typename InputIterator>
+		void fillInit(sizeType n, InputIterator first, InputIterator last) {
+
+		}
+		void createNodes(sizeType n) {
+
+		}
 		void allocateBuf(sizeType nodesToAdd) {
 			allocateMap(nodesToAdd);
 			for (int i = 1; i <= nodesToAdd; i++) {
@@ -162,17 +173,30 @@ namespace MiniStl {
 		 * 成员函数
 		 */
 		Deque() :
-				start(), finish(), demap(0), mapSize(0),bufLen(BufSize/sizeof(T)) {
+				start(), finish(), demap(0), mapSize(0), bufLen(
+						BufSize / sizeof(T)) {
 		}
-		Deque(const Deque& other) {
-
+		Deque(sizeType n, const ref value = T()) :
+				bufLen(BufSize / sizeof(T)) {
+			fillInit(n, value);
+		}
+		Deque(const Deque& other) :
+				bufLen(BufSize / sizeof(T)) {
+			fillInit(other.mapSize, other.start, other.finish);
+		}
+		template<typename InputIterator>
+		Deque(InputIterator first, InputIterator last) :
+				bufLen(BufSize / sizeof(T)) {
+			fillInit((last - first) / bufLen, first, last);
 		}
 		~Deque() {
 			destroy(start, finish);
 			dataAlloctor::deallocate(start, size());
 		}
 		Deque& operator =(const Deque& other) {
-
+			if (&other != this)
+				swap(Deque(other));
+			return *this;
 		}
 		/**
 		 * 元素的访问
@@ -240,36 +264,79 @@ namespace MiniStl {
 			//dataAlloctor::deallocate(start, size());
 		}
 		void insert(iterator pos, const T& val) {
-			insert(pos,1,val);
+			insert(pos, 1, val);
 		}
 		void insert(iterator pos, sizeType count, const T& val) {
+			if (count == 0)
+				return;
 			auto left = pos - start;
 			auto right = finish - pos;
 			if (left < right) {
 				auto tmp = start;
 				if (count > start.cur - *demap)
-					allocateBuf((count-(start.cur - *demap))/bufLen + 1);
+					allocateBuf((count - (start.cur - *demap)) / bufLen + 1);
 				start -= count;
 				uninitializedCopy(tmp, pos - 1, start);
-				*(start + pos - tmp) = val;
+				for (auto it = start + pos - tmp; it != pos + 1; ++it)
+					*it = val;
 			} else {
 				auto tmp = finish;
-				if (finish.cur+count > *(demap+mapSize-1)+bufLen)
-					allocateBuf((count + finish.cur - (*(demap+mapSize-1)+bufLen))/bufLen = 1);
-				finish+=count;
+				if (finish.cur + count > *(demap + mapSize - 1) + bufLen)
+					allocateBuf(
+							(count + finish.cur
+									- (*(demap + mapSize - 1) + bufLen))
+									/ bufLen = 1);
+				finish += count;
 				uninitializedCopyBck(pos, tmp, pos + 1);
-				*(pos) = val;
+				for (auto it = pos; it != pos + count; ++it)
+					*it = val;
 			}
 		}
 		template<typename InputIterator>
 		void insert(iterator pos, InputIterator first, InputIterator last) {
-
+			if (first == last)
+				return;
+			auto left = pos - start;
+			auto right = finish - pos;
+			auto count = last - first;
+			if (left < right) {
+				auto tmp = start;
+				if (count > start.cur - *demap)
+					allocateBuf((count - (start.cur - *demap)) / bufLen + 1);
+				start -= count;
+				uninitializedCopy(tmp, pos - 1, start);
+				for (auto tmp1 = start + pos - tmp; first != last;
+						++first, ++tmp1)
+					*tmp1 = *first;
+			} else {
+				auto tmp = finish;
+				if (finish.cur + count > *(demap + mapSize - 1) + bufLen)
+					allocateBuf(
+							(count + finish.cur
+									- (*(demap + mapSize - 1) + bufLen))
+									/ bufLen = 1);
+				finish += count;
+				uninitializedCopyBck(pos, tmp, pos + count);
+				for (auto tmp1 = pos; first != last; ++first, ++tmp1)
+					*tmp1 = *first;
+			}
 		}
 		void erase(iterator pos) {
-
+			erase(pos, pos + 1);
 		}
 		void erase(iterator first, iterator last) {
-
+			auto left = first - start;
+			auto right = finish - last;
+			auto count = last - first;
+			if (left < right) {
+				auto tmp = start;
+				start += count;
+				uninitializedCopyBck(tmp, first, start);
+			} else {
+				auto tmp = finish;
+				finish -= count;
+				uninitializedCopy(last, tmp, finish - right);
+			}
 		}
 		void push_back(constRef val) {
 			insert(end(), val);
@@ -283,11 +350,19 @@ namespace MiniStl {
 		void pop_front() {
 			erase(begin());
 		}
-		void reSize() {
-
+		void reSize(sizeType n) {
+			if (n < size()) {
+				erase(finish - (n - size()), finish);
+			} else {
+				insert(finish, n - size(), T());
+			}
 		}
 		void swap(const Deque& other) {
-
+			std::swap(start, other.start);
+			std::swap(finish, other.finish);
+			std::swap(demap, other.demap);
+			std::swap(bufLen, other.bufLen);
+			std::swap(mapSize, other.mapSize);
 		}
 	};
 }

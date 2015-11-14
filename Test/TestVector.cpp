@@ -1,5 +1,5 @@
 /*
- * TestAllocator.cpp
+ * TestVector.cpp
  *
  *  Created on: 2015年11月5日
  *      Author: jinrui
@@ -31,9 +31,30 @@ namespace MiniStl {
 					it != myvec.crend(); ++it, --i) {
 				assert(*it == i);
 			}
+			myvec.erase(myvec.end() - 3, myvec.end());
+			i = 0;
+			for (Vector<int>::constIterator it = myvec.begin();
+					it != myvec.end(); ++it, ++i) {
+				assert(*it == i);
+			}
+			std::cout << "case1 passed" << std::endl;
 		}
 
 		void TestVector::testCase2() {
+			Vector<int> myvec;
+			Vector<int> myvec1;
+			myvec.insert(myvec.end(), 1);
+			myvec.insert(myvec.end(), 2);
+			myvec.insert(myvec.end(), 3);
+			myvec1.swap(myvec);
+			for (int i = 1; i <= 3; i++)
+				assert(i == myvec1[i - 1]);
+			Vector<int> myvec3 = myvec1;
+			for (int i = 1; i <= 3; i++)
+				assert(i == myvec3[i - 1]);
+			assert(myvec3.front() == 1);
+			assert(myvec3.back() == 3);
+			std::cout << "case2 passed" << std::endl;
 		}
 		void TestVector::testCase3() {
 		}
@@ -41,6 +62,7 @@ namespace MiniStl {
 			testCase1();
 			testCase2();
 			testCase3();
+			std::cout << "All cases passed" << std::endl;
 		}
 	}
 }

@@ -29,7 +29,7 @@ namespace MiniStl {
 		typedef sizeT sizeType;
 		typedef ptrdiffT differenceType;
 		typedef ReverseIterator<iterator> reverseIterator;
-		typedef  ReverseIterator<constIterator> constReverseIterator;
+		typedef ReverseIterator<constIterator> constReverseIterator;
 		//typedef  const reverseIterator constReverseIterator;
 	protected:
 		//默认的空间配置器为二级配置器
@@ -56,11 +56,19 @@ namespace MiniStl {
 		Vector(const Vector & other) {
 			this->start = dataAllocator::allocate(other.capacity());
 			uninitializedCopy(other.start, other.finish, this->start);
-			this->finish = this->start + other.finish - other.start;
-			this->endOfStorage = start + other.endOfStorage - other.start;
+			this->finish = this->start + other.size();
+			this->endOfStorage = start + other.capacity();
 		}
 		Vector(Vector &&other) {
 			swap(other);
+		}
+		template<typename InputIterator>
+		Vector(InputIterator first, InputIterator last) {
+			auto count = last-first;
+			start = dataAllocator::allocate(count);
+			finish = start + count;
+			endOfStorage = finish;
+			uninitializedCopy(first,last,start);
 		}
 		~Vector() {
 			destroy(start, finish);
@@ -69,9 +77,9 @@ namespace MiniStl {
 		/**
 		 * 元素访问
 		 */
-		ref at(sizeType pos) const{
-			if(pos >= size() || pos<0){
-				std::cerr<<"out of range!"<<std::endl;
+		ref at(sizeType pos) const {
+			if (pos >= size() || pos < 0) {
+				std::cerr << "out of range!" << std::endl;
 				exit(1);
 			}
 		}
@@ -103,13 +111,13 @@ namespace MiniStl {
 		constIterator cend() const {
 			return finish;
 		}
-		reverseIterator rbegin()  const{
+		reverseIterator rbegin() const {
 			return reverseIterator(end() - 1);
 		}
 		constReverseIterator crbegin() const {
 			return constReverseIterator(cend() - 1);
 		}
-		reverseIterator rend()  const{
+		reverseIterator rend() const {
 			return reverseIterator(begin() - 1);
 		}
 		constReverseIterator crend() const {
@@ -221,7 +229,11 @@ namespace MiniStl {
 		/**
 		 *运算符重载
 		 */
-		Vector& operator =(const Vector&);
+		Vector& operator =(const Vector& vec) {
+			if (&vec != this)
+				swap(Vector(vec));
+			return *this;
+		}
 
 		template<typename E, typename A>
 		friend bool operator ==(const Vector<E, A>& lhs,
@@ -260,16 +272,10 @@ namespace MiniStl {
 
 	template<typename T, typename Alloc>
 	void Vector<T, Alloc>::swap(Vector<T, Alloc>& other) {
-		std::swap(this->start, other.start);
-		std::swap(this->finish, other.finish);
-		std::swap(this->endOfStorage, other.endOfStorage);
-	}
-
-	template<typename T, typename Alloc>
-	Vector<T, Alloc>& Vector<T, Alloc>::operator =(const Vector<T, Alloc>& v) {
-		Vector tmp(v);
-		swap(tmp);
-		return *this;
+		Vector<T, Alloc> tmp(other);
+		std::swap(this->start, tmp.start);
+		std::swap(this->finish, tmp.finish);
+		std::swap(this->endOfStorage, tmp.endOfStorage);
 	}
 
 	template<typename T, typename Alloc>

@@ -26,6 +26,13 @@ namespace MiniStl {
 		Node(const T& val) :
 				data(val), next(0), prev(0) {
 		}
+		template<typename E>
+		Node(const E& val) :
+				data(val), next(0), prev(0) {
+		}
+		~Node() {
+
+		}
 		bool operator ==(const Node& other) {
 			return this->data == other.data && this->next == other->next
 					&& this->prev == other->prev;
@@ -34,10 +41,12 @@ namespace MiniStl {
 
 	template<typename T>
 	class ListIterator: public biDirectionalIterator<T> {
+	public:
 		typedef Node<T>* nodePtr;
 		typedef int sizeT;
 		typedef int ptrdiffT;
 		typedef sizeT sizeType;
+		typedef ListIterator self;
 		nodePtr np;
 	public:
 		explicit ListIterator(nodePtr _np) :
@@ -49,36 +58,40 @@ namespace MiniStl {
 		ListIterator(const ListIterator& other) :
 				np(other.np) {
 		}
+		template<typename E>
+		ListIterator(const ListIterator<E>& other) :
+				np(reinterpret_cast<nodePtr>(other.np)) {
+		}
 		ListIterator& operator =(const ListIterator& other) {
 			ListIterator tmp(other);
 			std::swap(tmp.np, np);
 			return *this;
 		}
-		np& operator ++() {
+		self& operator ++() {
 			np = np->next;
 			return *this;
 		}
-		np operator ++(int) {
+		self operator ++(int) {
 			auto tmp = this;
 			np = np->next;
 			return *tmp;
 		}
-		np& operator --() {
+		self& operator --() {
 			np = np->prev;
 			return *this;
 		}
-		np operator --(int) {
+		self operator --(int) {
 			auto tmp = this;
 			np = np->prev;
 			return *tmp;
 		}
-		T operator *() {
+		T& operator *() {
 			return np->data;
 		}
 		T* operator ->() {
 			return &(np->data);
 		}
-		ListIterator operator +(int i) {
+		self operator +(int i) const {
 			auto cur = np;
 			while (i--)
 				cur = cur->next;
@@ -91,9 +104,9 @@ namespace MiniStl {
 			return np == other.np;
 		}
 		bool operator !=(const ListIterator& other) const {
-			return !operator();
+			return !operator==(other);
 		}
-		ListIterator operator -(int i) {
+		ListIterator operator -(int i) const {
 			auto cur = np;
 			while (i--)
 				cur = cur->prev;
@@ -101,13 +114,14 @@ namespace MiniStl {
 		}
 		sizeType operator -(const ListIterator& other) {
 			sizeType result = 0;
-			for (auto node = np; node != other.np; node = node->next, ++result)
+			for (auto node = np; node != other.np; node = node->prev, ++result)
 				;
 			return result;
 		}
 	};
 	template<typename T, typename Alloctor = Alloc>
 	class List {
+	public:
 		typedef Allocator<Node<T>, Alloctor> dataAlloctor;
 
 		typedef int sizeT;
@@ -121,17 +135,17 @@ namespace MiniStl {
 		typedef const ref constRef;
 		typedef T* pointer;
 		typedef ReverseIterator<iterator> reverseIterator;
-		typedef  ReverseIterator<constIterator> constReverseIterator;
+		typedef ReverseIterator<constIterator> constReverseIterator;
 		iterator head;
 		iterator tail; //双向环状结构,head,tail不指向实际数据,都是哨兵
 	private:
 		/**
 		 * 辅助函数
 		 */
-		iterator newNode(constRef val = 0) {
+		iterator newNode(const T& val = 0) {
 			auto tmp = dataAlloctor::allocate();
-			construct(tmp, Node(val));
-			return ListIterator(tmp);
+			construct(tmp, val);
+			return iterator(tmp);
 		}
 		void sort(iterator start, iterator end) {
 			if (start == end)
@@ -165,25 +179,25 @@ namespace MiniStl {
 		List() {
 			head = newNode();
 			tail = newNode();
-			head.np->next = tail;
-			tail.np->prev = head;
+			head.np->next = tail.np;
+			tail.np->prev = head.np;
 		}
-		explicit List(sizeType count, const T& value = T()) {
+		explicit List(sizeType count, const T& value = T()):List() {
 			for (int i = 0; i < count; i++) {
 				push_back(value);
 			}
 		}
-		List(const List& other) {
+		List(const List& other):List() {
 			insert(end(), other.begin(), other.end());
 		}
 		template<typename InputIterator>
-		explicit List(InputIterator first, InputIterator last) {
+		explicit List(InputIterator first, InputIterator last):List() {
 			for (auto it = first; it != last; ++it) {
 				push_back(*first);
 			}
 		}
 		~List() {
-			destroy(head.np, tail);
+			destroy(head, tail);
 			dataAlloctor::deallocate(head.np, size() + 2);
 		}
 
@@ -194,7 +208,7 @@ namespace MiniStl {
 			return *(head + 1);
 		}
 		valueType back() {
-			return *(tail.np - 1);
+			return *(tail - 1);
 		}
 		/**
 		 * 迭代器
@@ -205,8 +219,8 @@ namespace MiniStl {
 		constIterator cbegin() const {
 			return head + 1;
 		}
-		ReverseIterator<iterator> rbegin() const {
-			return ReverseIterator(tail - 1);
+		reverseIterator rbegin() const {
+			return reverseIterator(end() - 1);
 		}
 		iterator end() const {
 			return tail;
@@ -215,13 +229,13 @@ namespace MiniStl {
 			return tail;
 		}
 		constReverseIterator crbegin() const {
-			return ReverseIterator(tail - 1);
+			return constReverseIterator(cend() - 1);
 		}
 		reverseIterator rend() const {
 			return reverseIterator(head);
 		}
 		constReverseIterator crend() const {
-			return reverseIterator(head);
+			return constReverseIterator(cbegin());
 		}
 		/**
 		 * 容量
@@ -235,7 +249,7 @@ namespace MiniStl {
 		/**
 		 * 修饰符
 		 */
-		void insert(iterator pos, constRef val) {
+		void insert(iterator pos, const T& val) {
 			auto tmp = newNode(val);
 			auto bef = pos.np->prev;
 			bef->next = tmp.np;
@@ -249,11 +263,11 @@ namespace MiniStl {
 				insert(pos, *it);
 		}
 
-		void push_back(constRef val) {
+		void push_back(const T& val) {
 			insert(end(), val);
 		}
 		void pop_back() {
-			erase(end()-1);
+			erase(end() - 1);
 		}
 		void erase(iterator pos) {
 			auto bef = pos.np->prev;
@@ -265,10 +279,10 @@ namespace MiniStl {
 		}
 		void erase(iterator first, iterator last) {
 			auto bef = first.np->prev;
-			bef->next = last;
-			last->prev = bef;
+			bef->next = last.np;
+			last.np->prev = bef;
 			destroy(first, last);
-			dataAlloctor::deallocate(first, last - first);
+			dataAlloctor::deallocate(first.np, last - first);
 		}
 		void clear() {
 			erase(begin(), end());
@@ -300,11 +314,14 @@ namespace MiniStl {
 		friend bool operator !=(const List& lhs, const List& rhs) {
 			return !(operator ==(lhs, rhs));
 		}
+		ref operator [](sizeType n) {
+			return *(begin() + n);
+		}
 
 		/**
 		 * 操作
 		 */
-		void headToTail(){
+		void headToTail() {
 			head = tail;
 		}
 		void splice(iterator pos, List& other) {
