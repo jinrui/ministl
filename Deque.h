@@ -135,12 +135,13 @@ namespace MiniStl {
 		/**
 		 * 辅助函数
 		 */
+		//n是节点个数
 		void fillInit(sizeType n, const T&val) {
-
+			createNodes(n);
 		}
 		template<typename InputIterator>
 		void fillInit(sizeType n, InputIterator first, InputIterator last) {
-
+			createNodes(n);
 		}
 		void createNodes(sizeType n) {
 
@@ -182,12 +183,12 @@ namespace MiniStl {
 		}
 		Deque(const Deque& other) :
 				bufLen(BufSize / sizeof(T)) {
-			fillInit(other.mapSize, other.start, other.finish);
+			fillInit(other.size(), other.start, other.finish);
 		}
 		template<typename InputIterator>
 		Deque(InputIterator first, InputIterator last) :
 				bufLen(BufSize / sizeof(T)) {
-			fillInit((last - first) / bufLen, first, last);
+			fillInit((last - first), first, last);
 		}
 		~Deque() {
 			destroy(start, finish);
@@ -251,7 +252,7 @@ namespace MiniStl {
 		bool empty() const {
 			return start == finish;
 		}
-		sizeType size() {
+		sizeType size() const{
 			return finish - start;
 		}
 

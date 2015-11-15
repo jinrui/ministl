@@ -150,26 +150,30 @@ namespace MiniStl {
 		void sort(iterator start, iterator end) {
 			if (start == end)
 				return;
-			iterator cur = start;
-
-			for (cur = start; cur != end; ++cur) {
-				if (cur > start)
-					cur = start;
+			auto tmp = *start;
+			auto pos = start;
+			for (auto cur = start; cur != end; ++cur) {
+				if (*cur < tmp) {
+					pos = cur;
+					tmp = *cur;
+				}
 			}
-			std::swap(*cur, *start);
+			std::swap(*pos, *start);
 			sort(++start, end);
 		}
 		template<typename Compare>
 		void sort(iterator start, iterator end, Compare cmp) {
 			if (start == end)
 				return;
-			iterator cur = start;
-
-			for (cur = start; cur != end; ++cur) {
-				if (cmp(cur, start) == 1)
-					cur = start;
+			auto tmp = *start;
+			auto pos = start;
+			for (auto cur = start; cur != end; ++cur) {
+				if (cmp(*cur, tmp) < 0) {
+					pos = cur;
+					tmp = *cur;
+				}
 			}
-			std::swap(*cur, *start);
+			std::swap(*pos, *start);
 			sort(++start, end);
 		}
 	public:
@@ -182,23 +186,26 @@ namespace MiniStl {
 			head.np->next = tail.np;
 			tail.np->prev = head.np;
 		}
-		explicit List(sizeType count, const T& value = T()):List() {
+		explicit List(sizeType count, const T& value = T()) :
+				List() {
 			for (int i = 0; i < count; i++) {
 				push_back(value);
 			}
 		}
-		List(const List& other):List() {
+		List(const List& other) :
+				List() {
 			insert(end(), other.begin(), other.end());
 		}
 		template<typename InputIterator>
-		explicit List(InputIterator first, InputIterator last):List() {
+		explicit List(InputIterator first, InputIterator last) :
+				List() {
 			for (auto it = first; it != last; ++it) {
 				push_back(*first);
 			}
 		}
 		~List() {
 			destroy(head, tail);
-			dataAlloctor::deallocate(head.np, size() + 2);
+			dataAlloctor::deallocate(head.np, tail.np->next);
 		}
 
 		/**
@@ -274,7 +281,7 @@ namespace MiniStl {
 			auto last = pos.np->next;
 			bef->next = last;
 			last->prev = bef;
-			destroy(pos);
+			destroy(pos,pos+1);
 			dataAlloctor::deallocate(pos.np);
 		}
 		void erase(iterator first, iterator last) {
@@ -282,7 +289,7 @@ namespace MiniStl {
 			bef->next = last.np;
 			last.np->prev = bef;
 			destroy(first, last);
-			dataAlloctor::deallocate(first.np, last - first);
+			dataAlloctor::deallocate(first.np, last.np);
 		}
 		void clear() {
 			erase(begin(), end());
@@ -336,24 +343,24 @@ namespace MiniStl {
 			iterator cur2 = other.begin();
 			iterator cur = head;
 			while (cur1 != end() && cur2 != other.end()) {
-				if (cur1 != begin() && *cur1 > *(cur1 - 1))
-					break;
+//				if (cur1 != begin() && *cur1 > *(cur1 - 1))
+//					break;
 				if (*cur1 < *cur2) {
-					cur.nb->next = cur1.nb;
-					cur1.nb.prev = cur.nb.prev;
+					cur.np->next = cur1.np;
+					cur1.np->prev = cur.np;
 					cur = cur1;
 					++cur1;
 				} else {
-					cur.nb->next = cur2.nb;
-					cur2.nb.prev = cur.nb.prev;
+					cur.np->next = cur2.np;
+					cur2.np->prev = cur.np;
 					cur = cur2;
 					++cur2;
 				}
 			}
 			if (cur2 == other.end())
 				return;
-			cur.nb->next = cur2.nb;
-			cur2.nb.prev = cur.nb.prev;
+			cur.np->next = cur2.np;
+			cur2.np->prev = cur.np->prev;
 			tail = other.tail;
 		}
 		template<typename compare>
@@ -362,35 +369,36 @@ namespace MiniStl {
 			iterator cur2 = other.begin();
 			iterator cur = head;
 			while (cur1 != end() && cur2 != other.end()) {
-				if (cur1 != begin() && *cur1 > *(cur1 - 1))
-					break;
+//				if (cur1 != begin() && *cur1 > *(cur1 - 1))
+//					break;
 				if (cmp(*cur1, *cur2) < 0) {
-					cur.nb->next = cur1.nb;
-					cur1.nb.prev = cur.nb.prev;
+					cur.np->next = cur1.np;
+					cur1.np->prev = cur.np;
 					cur = cur1;
 					++cur1;
 				} else {
-					cur.nb->next = cur2.nb;
-					cur2.nb.prev = cur.nb.prev;
+					cur.np->next = cur2.np;
+					cur2.np->prev = cur.np;
 					cur = cur2;
 					++cur2;
 				}
 			}
 			if (cur2 == other.end())
 				return;
-			cur.nb->next = cur2.nb;
-			cur2.nb.prev = cur.nb.prev;
+			cur.np->next = cur2.np;
+			cur2.np->prev = cur.np->prev;
 			tail = other.tail;
 		}
 		void reverse() {
-			auto fst = begin();
+			auto fst = head;
 			auto snd = fst + 1;
-			while (fst != end() && snd != end()) {
+			while (true) {
 				auto tmp = fst.np->prev;
 				fst.np->prev = fst.np->next;
 				fst.np->next = tmp;
+				if(fst == tail) break;
 				fst = snd;
-				snd = fst + 1;
+				++snd;
 			}
 			auto tmp = head;
 			head = tail;
@@ -410,6 +418,7 @@ namespace MiniStl {
 				if (num == 0) {
 					first = it;
 					++it;
+					++num;
 				} else {
 					if (*it != *first) {
 						erase(first + 1, it);
@@ -422,17 +431,18 @@ namespace MiniStl {
 			}
 		}
 		void remove(const T&val) {
-			for (auto& it = begin(); it != end();) {
+			for (auto it = begin(); it != end();) {
 				if (*it == val) {
 					auto tmp = it + 1;
 					erase(it);
+					it = tmp;
 				} else
 					++it;
 			}
 		}
 		template<typename UnaryPredicate>
 		void removeIf(UnaryPredicate p) {
-			for (auto& it = begin(); it != end();) {
+			for (auto it = begin(); it != end();) {
 				if (p(*it)) {
 					auto tmp = it + 1;
 					erase(it);

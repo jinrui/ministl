@@ -34,6 +34,7 @@ namespace MiniStl {
 		static pointer allocate(sizeType n);
 		static void deallocate(pointer p);
 		static void deallocate(pointer p, sizeType n);
+		static void deallocate(pointer first, pointer last);
 	};
 	template<typename T, typename alloc>
 	T* Allocator<T, alloc>::allocate() {
@@ -51,6 +52,24 @@ namespace MiniStl {
 	void Allocator<T, alloc>::deallocate(pointer p, sizeType n) {
 			alloc::deallocate(p,sizeof(T)*n);
 	}
+	template<typename T, typename alloc>
+	void Allocator<T, alloc>::deallocate(pointer first, pointer last) {
+			auto tmp = first;
+			while(tmp!=last){
+				auto tmp1 = tmp->next;
+				deallocate(tmp);
+				tmp=tmp1;
+			}
+	}
+//	template<typename T, typename alloc>
+//	void Allocator<int, alloc>::deallocate(int* first, int* last) {
+//			auto tmp = first;
+//			while(tmp!=last){
+//				auto tmp1 = tmp+1;
+//				deallocate(tmp);
+//				tmp=tmp1;
+//			}
+//	}
 }
 
 #endif /* ALLOCATOR_H_ */
