@@ -61,7 +61,6 @@ namespace MiniStl {
 			for (int i = 0; i < 1000000; i++)
 				myvec.push_back(i);
 			for (int i = 0; i < 1000000; i++) {
-				std::cout << myvec[i] << std::endl;
 				assert(i == myvec[i]);
 			}
 			std::cout << "case3 passed" << std::endl;

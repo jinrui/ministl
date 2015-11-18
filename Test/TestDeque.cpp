@@ -58,13 +58,16 @@ namespace MiniStl {
 		}
 		void TestDeque::testCase3() {
 			Deque<int, Alloc> mydeq;
-			for (int i = 0; i < 14000; i++)	//我的内存分配写的还是有问题。隐藏的bug.
+			for (int i = 0; i < 100000; i++)
 				mydeq.push_back(i);
-			for (int i = 0; i < 14000; i++){
-				std::cout<< mydeq[i]<<std::endl;
+			for (int i = 0; i < 100000; i++) {
 				assert(i == mydeq[i]);
 			}
-
+			for (int i = 99999; i >=0; i--)
+				mydeq.push_front(i);
+			for (int i = 0; i < 100000; ++i) {
+				assert(i == mydeq[i]);
+			}
 			std::cout << "case3 passed" << std::endl;
 		}
 		void TestDeque::testAll() {

@@ -87,7 +87,6 @@ namespace MiniStl {
 			list1.push_back(4);
 			mylist.merge(list1);
 			for (int i = 1; i <= 4; i++) {
-				std::cout<<mylist[i-1]<<std::endl;
 				assert(i == mylist[i - 1]);
 			}
 

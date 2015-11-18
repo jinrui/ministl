@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <iostream>
 namespace MiniStl {
-	template<typename T, typename Alloc,int BufSize>
+	template<typename T, typename Alloc, int BufSize>
 	class DequeIterator: public randomAccessIterator<T> {
 	public:
 		typedef T* pointer;
@@ -34,8 +34,9 @@ namespace MiniStl {
 		sizeType bufLen;
 		void setMapNode(mapPointer node) {
 			deMap = node;
-			//if(*node == 0) *node =(int*) malloc(4);
-			if(*node == 0) *node = dataAlloctor::allocate(bufLen);
+			//if(*node == 0) *node = (int*)malloc(bufLen*sizeof(T));
+			if (*node == 0)
+				*node = dataAlloctor::allocate(bufLen);
 			first = *node;
 			last = *node + bufLen;
 		}
@@ -52,7 +53,7 @@ namespace MiniStl {
 						other.cur), bufLen(other.bufLen) {
 		}
 		template<typename E>
-		DequeIterator(const DequeIterator<E, Alloc,BufSize>& other) :
+		DequeIterator(const DequeIterator<E, Alloc, BufSize>& other) :
 				deMap(const_cast<mapPointer>(other.deMap)), first(
 						const_cast<pointer>(other.first)), last(
 						const_cast<pointer>(other.last)), cur(
@@ -146,8 +147,8 @@ namespace MiniStl {
 		typedef Allocator<T*, Alloc> mapAlloctor;
 		typedef int sizeT;
 		typedef int ptrdiffT;
-		typedef DequeIterator<T, Alloc,BufSize> iterator;
-		typedef DequeIterator<const T, Alloc,BufSize> constIterator;
+		typedef DequeIterator<T, Alloc, BufSize> iterator;
+		typedef DequeIterator<const T, Alloc, BufSize> constIterator;
 		typedef T valueType;
 		typedef T* pointer;
 		typedef pointer* mapPointer;
@@ -190,8 +191,7 @@ namespace MiniStl {
 			auto nfinish = nstart + numNodes - 1;
 			for (auto it = deMap; it < deMap + mapSize; ++it) {
 				*it = dataAlloctor::allocate(bufLen);
-				//*it = (int*) malloc(4);		//TODO 自己写的内存管理有bug
-				std::cout << "*it: " << *it << std::endl;
+				//*it = (int*)malloc(bufLen*sizeof(T));	//TODO 自己写的内存管理有bug
 			}
 			start.setMapNode(nstart);
 			start.cur = start.first;
@@ -210,7 +210,7 @@ namespace MiniStl {
 				mapSize = newMapSize;
 				for (auto it = deMap; it < deMap + mapSize; ++it) {
 					*it = dataAlloctor::allocate(bufLen);
-					//*it = (int*) malloc(4);		//TODO 自己写的内存管理有bug
+					//*it = (int*)malloc(bufLen*sizeof(T));	//TODO 自己写的内存管理有bug
 				}
 				start.setMapNode(newMapStart);
 				start.cur = start.first;
@@ -219,19 +219,16 @@ namespace MiniStl {
 				return;
 			}
 			auto oldNodes = finish.deMap - start.deMap + 1;
-			//if(finish.first == finish.cur) oldNodes--;
 			auto newNodes = oldNodes + nodesToAdd;
-			auto newMapSize = mapSize + std::max(mapSize, nodesToAdd) + 20;	//TODO 应该为2?
+			auto newMapSize = mapSize + std::max(mapSize, nodesToAdd) + 2;
 			auto newMap = mapAlloctor::allocate(newMapSize);
 			auto newMapStart = newMap + (newMapSize - newNodes) / 2
 					+ (isFront ? nodesToAdd : 0);
 			uninitializedCopy(start.deMap, start.deMap + oldNodes, newMapStart);
-		/*	for (auto it = newMap; it != newMapStart; ++it)
-				*it = dataAlloctor::allocate(bufLen);	//这一句有bug*/
 			for (auto it = newMapStart + oldNodes; it != newMapStart + newNodes;
 					++it)
 				*it = dataAlloctor::allocate(bufLen);
-				//*it = (int*)malloc(4);
+			//*it = (int*)malloc(bufLen*sizeof(T));
 			mapAlloctor::deallocate(deMap, mapSize);
 			deMap = newMap;
 			mapSize = newMapSize;
@@ -261,7 +258,11 @@ namespace MiniStl {
 		}
 		~Deque() {
 			destroy(start, finish);
-			dataAlloctor::deallocate(start.cur, size());
+			if (deMap && *deMap) {
+				for (auto it = start.deMap; it <= finish.deMap; ++it)
+					dataAlloctor::deallocate(*it, bufLen);
+			}
+			mapAlloctor::deallocate(deMap, mapSize);
 		}
 		Deque& operator =(const Deque& other) {
 			if (&other != this)
@@ -349,7 +350,8 @@ namespace MiniStl {
 				if (count > leftLeft)
 					allocateMap(count - leftLeft, true);
 				start -= count;
-				uninitializedCopy(tmp, pos - 1, start);
+				if (pos != tmp)
+					uninitializedCopy(tmp, pos - 1, start);
 				uninitializedFillN(start + (pos - tmp), count, val);
 			} else {
 				auto tmp = finish;
@@ -412,10 +414,12 @@ namespace MiniStl {
 				auto tmp = start;
 				start += count;
 				uninitializedCopyBck(tmp, first, start);
+				destroy(tmp,start);
 			} else {
 				auto tmp = finish;
 				finish -= count;
 				uninitializedCopy(last, tmp, finish - right);
+				destroy(finish,tmp);
 			}
 		}
 		void push_back(constRef val) {
