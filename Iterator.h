@@ -59,7 +59,7 @@ namespace MiniStl {
 	};
 
 	//forward型iterator
-	template<typename T, typename Distance>
+	template<typename T, typename Distance = int>
 	struct forwardIterator {
 		typedef forwardIteratorTag iteratorCategory;
 		typedef T valueType;
@@ -79,7 +79,7 @@ namespace MiniStl {
 	};
 
 	//randomAccess型iterator
-	template<typename T, typename Distance>
+	template<typename T, typename Distance = int>
 	struct randomAccessIterator {
 		typedef randomAccessIteratorTag iteratorCategory;
 		typedef T valueType;

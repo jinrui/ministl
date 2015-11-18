@@ -54,7 +54,7 @@ namespace MiniStl {
 			return r;
 		}
 		//调整freelist
-		*myFreeList = result->next;
+		*myFreeList = result->next;	//显示这句话有问题
 		return result;
 	}
 

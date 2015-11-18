@@ -57,6 +57,14 @@ namespace MiniStl {
 			std::cout << "case2 passed" << std::endl;
 		}
 		void TestVector::testCase3() {
+			Vector<long long> myvec;
+			for (int i = 0; i < 1000000; i++)
+				myvec.push_back(i);
+			for (int i = 0; i < 1000000; i++) {
+				std::cout << myvec[i] << std::endl;
+				assert(i == myvec[i]);
+			}
+			std::cout << "case3 passed" << std::endl;
 		}
 		void TestVector::testAll() {
 			testCase1();

@@ -25,7 +25,7 @@ namespace MiniStl {
 			InputIterator last, ForwardIterator result) {
 		first--, last--;
 		int len = last - first;
-		for (int i = len; first != last; --last, --i)
+		for (int i = len-1; first != last; --last, --i)
 			construct(&*(result + i), *last);
 		return result;
 	}
@@ -44,6 +44,14 @@ namespace MiniStl {
 		for (int i = 0; i < n; ++cur, ++i)
 			construct(&*cur, result);
 		return cur;
+	}
+	template<typename ForwardIterator, typename InputIterator>
+	inline InputIterator uninitializedFillNI(InputIterator result,
+			ForwardIterator first, ForwardIterator last) {
+		InputIterator cur = result;
+		for (auto it = first; it != last; ++it, ++cur)
+			construct(&*cur, *it);
+		return result;
 	}
 }
 
