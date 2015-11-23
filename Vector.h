@@ -82,6 +82,7 @@ namespace MiniStl {
 				std::cerr << "out of range!" << std::endl;
 				exit(1);
 			}
+			return start[pos];
 		}
 		ref operator[](sizeType n) {
 			return *(start + n);
@@ -185,7 +186,7 @@ namespace MiniStl {
 
 		void pop_back() {
 			--finish;
-			destory(finish);
+			destroy(finish);
 		}
 		//清楚某个位置上元素，也不简单,注意调用copy
 		iterator erase(iterator position) {
@@ -210,7 +211,7 @@ namespace MiniStl {
 			for (; cur < finish; ++first, ++cur)
 				*first = *cur;
 			for (int i = 0; i < dis; i++, --cur)
-				destory(&*cur);
+				destroy(&*cur);
 			finish = finish - dis;
 			return last = first;
 		}
