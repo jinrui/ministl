@@ -10,7 +10,7 @@
 #include <assert.h>
 #include <iostream>
 
-#include "../Vector.h"
+#include "../Seq/Vector.h"
 namespace MiniStl {
 	namespace Test {
 		void TestVector::testCase1() {

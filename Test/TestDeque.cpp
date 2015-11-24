@@ -9,7 +9,7 @@
 #include "../Allocator.h"
 #include <assert.h>
 #include <iostream>
-#include "../Deque.h"
+#include "../Seq/Deque.h"
 
 namespace MiniStl {
 	namespace Test {

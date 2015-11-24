@@ -10,7 +10,7 @@
 #include <assert.h>
 #include <iostream>
 
-#include "../List.h"
+#include "../Seq/List.h"
 namespace MiniStl {
 	namespace Test {
 		void TestList::testCase1() {

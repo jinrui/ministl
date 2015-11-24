@@ -4,9 +4,9 @@
  *  Created on: 2015年11月23日
  *      Author: jinrui
  */
-#include "../Vector.h"
+#include "../Seq/Vector.h"
 #include "TestHeap.h"
-#include "../Heap.h"
+#include "../Seq/Heap.h"
 namespace MiniStl {
 	namespace Test {
 		void TestHeap::testCase1() {

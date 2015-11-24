@@ -7,12 +7,12 @@
 
 #ifndef DEQUE_H_
 #define DEQUE_H_
-#include "Construct.h"
-#include "ReverseIterator.h"
-#include "Allocator.h"
-#include "Alloc.h"
-#include "Uninitialized.h"
-#include "Iterator.h"
+#include "../Construct.h"
+#include "../ReverseIterator.h"
+#include "../Allocator.h"
+#include "../Alloc.h"
+#include "../Uninitialized.h"
+#include "../Iterator.h"
 #include <stdlib.h>
 #include <iostream>
 namespace MiniStl {

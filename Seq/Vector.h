@@ -7,12 +7,12 @@
 
 #ifndef VECTOR_H_
 #define VECTOR_H_
-#include "Alloc.h"
-#include "Allocator.h"
-#include "Construct.h"
-#include "ReverseIterator.h"
+#include "../Alloc.h"
+#include "../Allocator.h"
+#include "../Construct.h"
+#include "../ReverseIterator.h"
 #include <iostream>
-#include "Uninitialized.h"
+#include "../Uninitialized.h"
 namespace MiniStl {
 	template<typename T, typename Alloc = Alloc>
 	class Vector {

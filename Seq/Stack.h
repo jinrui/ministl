@@ -7,7 +7,7 @@
 
 #ifndef STACK_H_
 #define STACK_H_
-#include "Deque.h"
+#include "../Deque.h"
 namespace MiniStl {
 	template<typename T, typename Sequence = Deque<T>>
 	class Stack {

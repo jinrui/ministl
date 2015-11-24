@@ -7,9 +7,9 @@
 
 #ifndef LIST_H_
 #define LIST_H_
-#include "Alloc.h"
-#include "ReverseIterator.h"
-#include "Construct.h"
+#include "../Alloc.h"
+#include "../ReverseIterator.h"
+#include "../Construct.h"
 namespace MiniStl {
 
 	template<typename T>
@@ -132,7 +132,6 @@ namespace MiniStl {
 		typedef T& ref;
 		typedef ListIterator<T> iterator;
 		typedef ListIterator<const T> constIterator;
-		typedef const ref constRef;
 		typedef T* pointer;
 		typedef ReverseIterator<iterator> reverseIterator;
 		typedef ReverseIterator<constIterator> constReverseIterator;
