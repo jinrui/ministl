@@ -10,13 +10,15 @@
 #include "Test/TestDeque.h"
 #include "Test/TestAlloc.h"
 #include "Test/TestHeap.h"
+#include "Test/TestRbTree.h"
 using namespace MiniStl;
 int main(){
 	//MiniStl::Test::TestVector::testAll();
 	//MiniStl::Test::TestList::testAll();
 	//MiniStl::Test::TestDeque::testAll();
 	//MiniStl::Test::TestAlloc::testAll();
-	MiniStl::Test::TestHeap::testAll();
+	//MiniStl::Test::TestHeap::testAll();
+	MiniStl::Test::TestRbTree::testAll();
 	return 0;
 }
 
