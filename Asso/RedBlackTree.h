@@ -10,22 +10,27 @@
 #include "Pair.h"
 #include "../Allocator.h"
 #include "../Iterator.h"
+#include "../Alloc.h"
+#include "../ReverseIterator.h"
 namespace MiniStl {
 	/**
 	 * written by saturnman,modified by jinrui
 	 */
-	template<typename K, typename U, typename alloc>
+	template<typename K, typename U, typename alloc = Alloc>
 	class RBTree {
 	public:
 		typedef Pair<K, U> valueType;
 		typedef Allocator<valueType, alloc> dataAlloctor;
-	private:
+		typedef valueType& ref;
+		typedef valueType* pointer;
+		typedef int sizeType;
+
 		RBTree(const RBTree& other) :
 				m_nullNode(other.m_nullNode), m_root(other.m_root), start(), finish() {
 		}
-		RBTree() :
-				m_nullNode(0), m_root(0), start(m_root,m_root), finish(0,0) {
-		}
+		/*RBTree() :
+		 m_nullNode(0), m_root(0), start(m_root,m_root), finish(0,0) {
+		 }*/
 	private:
 		enum COLOR {
 			RED, BLACK
@@ -141,6 +146,9 @@ namespace MiniStl {
 				return other.cur == cur;
 			}
 		};
+	public:
+		typedef RBTIterator iterator;
+		typedef ReverseIterator<iterator> reverseIterator;
 	public:
 		RBTree() {
 			this->m_nullNode = new RBNode();

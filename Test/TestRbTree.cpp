@@ -27,7 +27,7 @@ namespace MiniStl {
 			cout << endl;
 			stringstream sstr;
 			for (i = 0; i < v.size(); ++i) {
-				tree.Insert(v[i], i);
+				tree.Insert(makePair(v[i], i));
 				cout << "insert:" << v[i] << endl;   //添加结点
 			}
 			for (i = 0; i < v.size(); ++i) {

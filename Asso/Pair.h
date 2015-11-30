@@ -24,9 +24,10 @@ struct Pair{
 		swap(Pair(other));
 		return *this;
 	}
+	//TODO
 	void swap(const Pair& other){
-		std::swap(other.first,first);
-		std::swap(other.second,second);
+		//std::swap(other.first,first);
+		//std::swap(other.second,second);
 	}
 };
 template<typename T1,typename T2>
